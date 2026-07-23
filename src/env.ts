@@ -28,7 +28,10 @@ if (!parsed.success) {
     '❌ Invalid environment variables:\n',
     JSON.stringify(parsed.error.issues, null, 2),
   )
-  throw new Error('Invalid environment variables. Check your .env.local file.')
+  throw new Error(
+    'Invalid environment variables. Required: DATABASE_URL, AUTH_SECRET, NEXT_PUBLIC_APP_URL. ' +
+      'Locally set them in .env.local; on Vercel add them under Project → Settings → Environment Variables, then redeploy.',
+  )
 }
 
 export const env = parsed.data
