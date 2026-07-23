@@ -15,7 +15,7 @@ const FEATURES = [
   { icon: Palette, title: 'Themes that fit', body: 'Three presets, a custom accent color, fonts and button styles — live preview as you go.' },
   { icon: BarChart3, title: 'Real analytics', body: 'Views, clicks, click-through rate, top links, devices and countries.' },
   { icon: Mail, title: 'Grow your list', body: 'Capture emails right on your page and export subscribers to CSV anytime.' },
-  { icon: Video, title: 'Auto-updating feeds', body: 'Show your latest YouTube videos — refreshed automatically every hour.' },
+  { icon: Video, title: 'Auto-updating feeds', body: 'Show your latest YouTube videos — refreshed automatically for you.' },
   { icon: Globe, title: 'Your own domain', body: 'Connect a custom domain and remove branding on the Pro plan.' },
 ]
 

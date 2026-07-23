@@ -18,7 +18,7 @@ export function YoutubeFeedEdit({
     <div className="space-y-3">
       <EditField
         label="YouTube Channel ID"
-        hint="e.g. UCxxxxxxxxxxxxxxxxxxxxxx — videos refresh hourly."
+        hint="e.g. UCxxxxxxxxxxxxxxxxxxxxxx — videos refresh automatically."
       >
         <Input
           value={data.channelId}

@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 /**
- * Hourly Vercel Cron. Refreshes the cached videos for every youtubeFeed block.
+ * Daily Vercel Cron. Refreshes the cached videos for every youtubeFeed block.
+ * (Daily keeps it within the Vercel Hobby plan's cron limit; bump to hourly on Pro.)
  * Secure it by setting a `CRON_SECRET` env var in Vercel equal to AUTH_SECRET —
  * Vercel then sends it as `Authorization: Bearer <secret>` to this route.
  */

@@ -119,7 +119,7 @@ src/app/api/                r (click redirect), pv (view beacon), subscribe, cro
 
 1. Push to a Git repo and import into Vercel.
 2. Add all environment variables from `.env.example` in the Vercel project settings.
-3. The hourly YouTube refresh cron is declared in `vercel.json` (`/api/cron/refresh-youtube`). To secure it, add a `CRON_SECRET` env var equal to your `AUTH_SECRET` — Vercel sends it as `Authorization: Bearer …` and the route verifies it.
+3. The daily YouTube refresh cron is declared in `vercel.json` (`/api/cron/refresh-youtube`, runs once per day so it fits the Vercel Hobby plan; bump the schedule to hourly on Pro). To secure it, add a `CRON_SECRET` env var equal to your `AUTH_SECRET` — Vercel sends it as `Authorization: Bearer …` and the route verifies it.
 4. Deploy. Neon works out of the box over the serverless HTTP driver.
 
 ## Security notes
