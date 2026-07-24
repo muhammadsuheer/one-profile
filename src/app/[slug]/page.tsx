@@ -28,13 +28,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
   const canonical = `${base}/${data.site.slug}`
 
+  // A creator-set social image (Settings) overrides the auto-generated OG card.
+  const customOg = data.site.seo?.ogImageUrl
+  const images = customOg ? [customOg] : undefined
+
   return {
     metadataBase: new URL(base),
     title,
     description,
     alternates: { canonical },
-    openGraph: { title, description, type: 'profile', url: canonical },
-    twitter: { card: 'summary_large_image', title, description },
+    openGraph: { title, description, type: 'profile', url: canonical, images },
+    twitter: { card: 'summary_large_image', title, description, images },
     robots: { index: true, follow: true },
   }
 }
