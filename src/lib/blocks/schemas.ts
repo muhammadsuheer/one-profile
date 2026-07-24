@@ -179,6 +179,13 @@ export const calendlyBlockSchema = z.object({
   url: urlOrEmpty,
 })
 
+export const imageBannerBlockSchema = z.object({
+  type: z.literal('imageBanner'),
+  imageUrl: urlOrEmpty,
+  alt: z.string().max(160).optional(),
+  linkUrl: urlOrEmpty.optional(),
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -196,6 +203,7 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   countdownBlockSchema,
   spotifyBlockSchema,
   calendlyBlockSchema,
+  imageBannerBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -219,6 +227,7 @@ export const BLOCK_SCHEMAS = {
   countdown: countdownBlockSchema,
   spotify: spotifyBlockSchema,
   calendly: calendlyBlockSchema,
+  imageBanner: imageBannerBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */

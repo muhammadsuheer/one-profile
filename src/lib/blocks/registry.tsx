@@ -16,6 +16,7 @@ import {
   Timer,
   Music,
   CalendarDays,
+  ImageIcon,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -37,6 +38,7 @@ import { ContactBlock } from '@/components/blocks/render/ContactBlock'
 import { CountdownBlock } from '@/components/blocks/render/CountdownBlock'
 import { SpotifyBlock } from '@/components/blocks/render/SpotifyBlock'
 import { CalendlyBlock } from '@/components/blocks/render/CalendlyBlock'
+import { ImageBannerBlock } from '@/components/blocks/render/ImageBannerBlock'
 
 export interface RenderArgs {
   id: string
@@ -282,6 +284,18 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
       data.type === 'calendly' ? <CalendlyBlock id={id} data={data} /> : null,
     summary: (data) => (data.type === 'calendly' ? data.url || 'No link set' : ''),
   },
+  imageBanner: {
+    type: 'imageBanner',
+    label: 'Image banner',
+    description: 'A full-width image, optionally linked',
+    icon: ImageIcon,
+    group: 'media',
+    proOnly: false,
+    defaultData: { type: 'imageBanner', imageUrl: '', alt: '', linkUrl: '' },
+    render: ({ id, data }) =>
+      data.type === 'imageBanner' ? <ImageBannerBlock id={id} data={data} /> : null,
+    summary: (data) => (data.type === 'imageBanner' ? data.alt || 'Banner image' : ''),
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -317,6 +331,8 @@ export function blockRendersContent(data: BlockData): boolean {
       return data.url.trim().length > 0
     case 'calendly':
       return data.url.trim().length > 0
+    case 'imageBanner':
+      return isHttpUrl(data.imageUrl)
     default:
       return true
   }

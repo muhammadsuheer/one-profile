@@ -19,6 +19,8 @@ export function getBlockTargets(data: BlockData): string[] {
       return data.images.map((i) => i.linkUrl).filter((u): u is string => !!u)
     case 'youtubeFeed':
       return (data.cachedVideos ?? []).map((v) => `https://www.youtube.com/watch?v=${v.id}`)
+    case 'imageBanner':
+      return data.linkUrl ? [data.linkUrl] : []
     default:
       return []
   }
@@ -35,6 +37,8 @@ export function getPrimaryTarget(data: BlockData): string | null {
       return data.buyUrl
     case 'socialRow':
       return data.items[0]?.url ?? null
+    case 'imageBanner':
+      return data.linkUrl || null
     default:
       return null
   }
