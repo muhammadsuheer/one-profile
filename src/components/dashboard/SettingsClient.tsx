@@ -109,8 +109,19 @@ export function SettingsClient({
             save()
           }}
         />
-        {plan !== 'pro' && (
+        {plan !== 'pro' ? (
           <p className="text-xs text-neutral-400">Upgrade to Pro to connect a custom domain.</p>
+        ) : customDomain.trim() ? (
+          <p className="text-xs text-neutral-400">
+            Point a <span className="font-medium text-neutral-500">CNAME</span> record for this
+            domain to <code className="rounded bg-neutral-100 px-1 py-0.5">cname.vercel-dns.com</code>,
+            then add it in your host&apos;s dashboard. DNS changes can take up to 24h. Your page must
+            be published for the domain to resolve.
+          </p>
+        ) : (
+          <p className="text-xs text-neutral-400">
+            Connect a domain you own, e.g. links.yourbrand.com.
+          </p>
         )}
       </div>
 
