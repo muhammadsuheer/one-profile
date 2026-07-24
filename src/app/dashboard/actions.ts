@@ -51,13 +51,21 @@ export async function createSite(
   redirect(`/dashboard/${site.id}/editor`)
 }
 
-export async function deleteSite(formData: FormData): Promise<void> {
+export async function deleteSite(
+  formData: FormData,
+): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser()
-  if (!user) return
+  if (!user) return { ok: false, error: 'You must be signed in.' }
   const siteId = String(formData.get('siteId') ?? '')
-  if (!siteId) return
-  // Cascade removes blocks, subscribers, clicks, media.
-  await db.delete(sites).where(and(eq(sites.id, siteId), eq(sites.ownerId, user.id)))
+  if (!siteId) return { ok: false, error: 'Invalid site.' }
+
+  try {
+    // Cascade removes blocks, subscribers, clicks, media.
+    await db.delete(sites).where(and(eq(sites.id, siteId), eq(sites.ownerId, user.id)))
+  } catch {
+    return { ok: false, error: 'Could not delete the site. Please try again.' }
+  }
+
   revalidatePath('/dashboard')
-  redirect('/dashboard')
+  return { ok: true }
 }

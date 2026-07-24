@@ -14,6 +14,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   destructive = false,
   loading = false,
+  error,
 }: {
   open: boolean
   onClose: () => void
@@ -24,6 +25,7 @@ export function ConfirmDialog({
   cancelLabel?: string
   destructive?: boolean
   loading?: boolean
+  error?: string
 }) {
   useEffect(() => {
     if (!open) return
@@ -62,6 +64,9 @@ export function ConfirmDialog({
           {title}
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">{description}</p>
+        {error && (
+          <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        )}
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} disabled={loading}>
             {cancelLabel}

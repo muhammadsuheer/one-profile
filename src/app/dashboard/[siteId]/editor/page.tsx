@@ -3,7 +3,7 @@ import { and, eq, asc } from 'drizzle-orm'
 import { db } from '@/db'
 import { sites, blocks } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
-import { themeConfigSchema } from '@/lib/theme'
+import { parseThemeConfig } from '@/lib/theme'
 import { env } from '@/env'
 import { EditorClient } from '@/components/editor/EditorClient'
 
@@ -27,7 +27,7 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
     .where(eq(blocks.siteId, site.id))
     .orderBy(asc(blocks.position))
 
-  const theme = themeConfigSchema.parse(site.theme)
+  const theme = parseThemeConfig(site.theme)
 
   return (
     <EditorClient

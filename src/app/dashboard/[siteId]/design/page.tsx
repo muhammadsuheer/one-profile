@@ -3,7 +3,7 @@ import { and, eq, asc } from 'drizzle-orm'
 import { db } from '@/db'
 import { sites, blocks } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
-import { themeConfigSchema } from '@/lib/theme'
+import { parseThemeConfig } from '@/lib/theme'
 import { DesignClient } from '@/components/design/DesignClient'
 
 export const metadata = { title: 'Design' }
@@ -26,7 +26,7 @@ export default async function DesignPage({ params }: { params: Promise<{ siteId:
     .where(eq(blocks.siteId, site.id))
     .orderBy(asc(blocks.position))
 
-  const theme = themeConfigSchema.parse(site.theme)
+  const theme = parseThemeConfig(site.theme)
 
   return <DesignClient siteId={site.id} plan={user.plan} initialTheme={theme} blocks={siteBlocks} />
 }

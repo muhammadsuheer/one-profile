@@ -4,7 +4,7 @@ import { db } from '@/db'
 import { sites } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
 import { env } from '@/env'
-import { seoConfigSchema } from '@/lib/theme'
+import { parseSeoConfig } from '@/lib/theme'
 import { SettingsClient } from '@/components/dashboard/SettingsClient'
 import { DeleteSiteButton } from '@/components/dashboard/DeleteSiteButton'
 
@@ -22,7 +22,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ siteI
     .limit(1)
   if (!site) notFound()
 
-  const seo = site.seo ? seoConfigSchema.parse(site.seo) : null
+  const seo = parseSeoConfig(site.seo)
 
   return (
     <div className="space-y-8">

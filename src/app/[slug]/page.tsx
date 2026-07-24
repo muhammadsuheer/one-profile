@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type { CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
 import { getPublishedSiteBySlug, getSiteOwnerPlan } from '@/lib/sites'
-import { themeConfigSchema, themeToCssVars } from '@/lib/theme'
+import { parseThemeConfig, themeToCssVars } from '@/lib/theme'
 import { renderBlock } from '@/lib/blocks/registry'
 
 // ISR: pages are cached and revalidated at most every 60s (§8).
@@ -36,7 +36,7 @@ export default async function PublicPage({ params }: Params) {
   const data = await getPublishedSiteBySlug(slug)
   if (!data) notFound()
 
-  const theme = themeConfigSchema.parse(data.site.theme)
+  const theme = parseThemeConfig(data.site.theme)
   const plan = await getSiteOwnerPlan(data.site.ownerId)
   // Free always shows branding; Pro can hide it (§9).
   const showBranding = plan === 'free' ? true : !theme.hideBranding

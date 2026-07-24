@@ -89,6 +89,19 @@ export const DEFAULT_THEME: ThemeConfig = {
   hideBranding: false,
 }
 
+/** Parse a stored theme, never throwing — falls back to the default on bad data. */
+export function parseThemeConfig(raw: unknown): ThemeConfig {
+  const parsed = themeConfigSchema.safeParse(raw)
+  return parsed.success ? parsed.data : DEFAULT_THEME
+}
+
+/** Parse stored SEO config, never throwing — returns null on bad/absent data. */
+export function parseSeoConfig(raw: unknown): SeoConfig | null {
+  if (!raw) return null
+  const parsed = seoConfigSchema.safeParse(raw)
+  return parsed.success ? parsed.data : null
+}
+
 const FONT_STACKS: Record<FontFamily, string> = {
   Inter: 'var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif',
   Sans: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
