@@ -75,9 +75,9 @@ export async function createSiteFromOnboarding(
   let tagline = role?.tagline ?? ''
   if (aiEnabled()) {
     const aiTag = await groqComplete(
-      'You write short, punchy taglines for a link-in-bio page. Reply with ONE tagline only, under 9 words, no quotes, no emojis.',
-      `Write a tagline for ${user.name ?? 'this person'}, a ${role?.label ?? 'creator'}.`,
-      40,
+      'Write one bio-link tagline, under 8 words. No quotes, emojis or hashtags.',
+      `${user.name ?? 'Someone'}, ${role?.label ?? 'creator'}`,
+      { maxTokens: 28 },
     )
     if (aiTag) tagline = aiTag
   }

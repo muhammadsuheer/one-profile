@@ -2,23 +2,33 @@
 
 import { getCurrentUser } from '@/lib/auth/session'
 import { aiEnabled, groqComplete } from '@/lib/ai'
+import { rateLimit } from '@/lib/ratelimit'
 
 export type AiResult = { ok: true; text: string } | { ok: false; error: string }
 
 const NOT_READY = 'AI isn’t set up yet — add a GROQ_API_KEY to enable it.'
+const RATE_LIMITED = 'Too many AI requests — please wait a minute.'
+const AI_PER_MIN = 20
+
+async function ready(): Promise<AiResult | { userId: string }> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, error: 'Not signed in.' }
+  if (!aiEnabled()) return { ok: false, error: NOT_READY }
+  // Cap spend/abuse per user (also keeps token cost predictable).
+  if (!rateLimit(`ai:${user.id}`, AI_PER_MIN, 60_000)) return { ok: false, error: RATE_LIMITED }
+  return { userId: user.id }
+}
 
 export async function generateTagline(input: {
   name: string
   role?: string
 }): Promise<AiResult> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, error: 'Not signed in.' }
-  if (!aiEnabled()) return { ok: false, error: NOT_READY }
+  const gate = await ready()
+  if ('ok' in gate) return gate
 
-  const system =
-    'You write short, punchy taglines for a link-in-bio page. Reply with ONE tagline only, under 9 words, no quotes, no emojis, no hashtags.'
-  const prompt = `Write a tagline for ${input.name || 'this person'}${input.role ? `, a ${input.role}` : ''}.`
-  const text = await groqComplete(system, prompt, 40)
+  const system = 'Write one bio-link tagline, under 8 words. No quotes, emojis or hashtags.'
+  const prompt = `${(input.name || 'Someone').slice(0, 60)}${input.role ? `, ${input.role.slice(0, 40)}` : ''}`
+  const text = await groqComplete(system, prompt, { maxTokens: 28 })
   if (!text) return { ok: false, error: 'Couldn’t generate right now — please try again.' }
   return { ok: true, text }
 }
@@ -28,17 +38,16 @@ export async function improveText(input: {
   kind: 'tagline' | 'title' | 'text'
   context?: string
 }): Promise<AiResult> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, error: 'Not signed in.' }
-  if (!aiEnabled()) return { ok: false, error: NOT_READY }
+  const gate = await ready()
+  if ('ok' in gate) return gate
 
-  const label =
-    input.kind === 'tagline' ? 'bio-link tagline' : input.kind === 'title' ? 'link button title' : 'short line'
-  const system = `You improve short marketing copy for a link-in-bio page. Reply with ONLY the improved ${label} — no quotes, no emojis, no explanation.`
-  const prompt = input.text.trim()
-    ? `Improve this ${label}: ${input.text}`
-    : `Write a great ${label}${input.context ? ` for ${input.context}` : ''}.`
-  const text = await groqComplete(system, prompt, input.kind === 'title' ? 24 : 60)
+  const label = input.kind === 'tagline' ? 'tagline' : input.kind === 'title' ? 'link title' : 'short line'
+  const source = (input.text ?? '').slice(0, 400)
+  const system = `Reply with only an improved ${label}. No quotes, emojis or extra words.`
+  const prompt = source
+    ? `Improve: ${source}`
+    : `Write a ${label}${input.context ? ` for ${input.context.slice(0, 60)}` : ''}`
+  const text = await groqComplete(system, prompt, { maxTokens: input.kind === 'title' ? 20 : 48 })
   if (!text) return { ok: false, error: 'Couldn’t generate right now — please try again.' }
   return { ok: true, text }
 }
