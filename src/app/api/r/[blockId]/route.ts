@@ -5,6 +5,7 @@ import { db } from '@/db'
 import { blocks, clicks } from '@/db/schema'
 import { getBlockTargets, getPrimaryTarget } from '@/lib/blocks/targets'
 import { detectDevice } from '@/lib/clicks'
+import { rateLimit } from '@/lib/ratelimit'
 
 const paramsSchema = z.object({ blockId: z.string().uuid() })
 
@@ -29,17 +30,25 @@ export async function GET(
   const target = to && allowed.includes(to) ? to : getPrimaryTarget(block.data)
   if (!target) return NextResponse.redirect(home)
 
-  // Log the click. Never let a logging failure block the redirect.
-  try {
-    await db.insert(clicks).values({
-      siteId: block.siteId,
-      blockId: block.id,
-      device: detectDevice(req.headers.get('user-agent') ?? ''),
-      referrer: req.headers.get('referer'),
-      country: req.headers.get('x-vercel-ip-country'),
-    })
-  } catch {
-    // swallow
+  // Log the click — but cap per IP+block so bots can't inflate click counts
+  // or flood the table. The redirect always proceeds regardless.
+  const ip = (
+    req.headers.get('x-forwarded-for')?.split(',')[0] ??
+    req.headers.get('x-real-ip') ??
+    'unknown'
+  ).trim()
+  if (rateLimit(`click:${ip}:${block.id}`, 30, 60_000)) {
+    try {
+      await db.insert(clicks).values({
+        siteId: block.siteId,
+        blockId: block.id,
+        device: detectDevice(req.headers.get('user-agent') ?? ''),
+        referrer: req.headers.get('referer'),
+        country: req.headers.get('x-vercel-ip-country'),
+      })
+    } catch {
+      // swallow
+    }
   }
 
   return NextResponse.redirect(target, 302)

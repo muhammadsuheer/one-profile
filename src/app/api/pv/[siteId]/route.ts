@@ -3,6 +3,15 @@ import { z } from 'zod'
 import { db } from '@/db'
 import { clicks } from '@/db/schema'
 import { detectDevice } from '@/lib/clicks'
+import { rateLimit } from '@/lib/ratelimit'
+
+function clientIp(req: NextRequest): string {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0] ??
+    req.headers.get('x-real-ip') ??
+    'unknown'
+  ).trim()
+}
 
 // 1x1 transparent GIF.
 const PIXEL = Buffer.from(
@@ -18,7 +27,10 @@ const idSchema = z.string().uuid()
  */
 export async function GET(req: NextRequest, ctx: { params: Promise<{ siteId: string }> }) {
   const { siteId } = await ctx.params
-  if (idSchema.safeParse(siteId).success) {
+  // Cap logged views per IP+site so refresh loops / bots can't inflate counts
+  // or flood the clicks table. Over the cap, still serve the pixel silently.
+  const withinLimit = rateLimit(`pv:${clientIp(req)}:${siteId}`, 30, 60_000)
+  if (withinLimit && idSchema.safeParse(siteId).success) {
     try {
       await db.insert(clicks).values({
         siteId,
