@@ -57,6 +57,81 @@ export async function createSite(
   redirect(`/dashboard/${siteId}/editor`)
 }
 
+/** Build a copy slug that fits the 30-char limit and slug rules. */
+function makeCopySlug(base: string, n: number): string {
+  const suffix = n === 1 ? '-copy' : `-copy-${n}`
+  const s = (base.slice(0, 30 - suffix.length) + suffix)
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  return s
+}
+
+export async function duplicateSite(input: {
+  siteId: string
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, error: 'You must be signed in.' }
+
+  // Duplicating creates a second site, so it's Pro-only (free = 1 site).
+  if (user.plan === 'free') {
+    return { ok: false, error: 'The free plan allows 1 site. Upgrade to Pro to duplicate.' }
+  }
+
+  const [source] = await db
+    .select()
+    .from(sites)
+    .where(and(eq(sites.id, input.siteId), eq(sites.ownerId, user.id)))
+    .limit(1)
+  if (!source) return { ok: false, error: 'Site not found.' }
+
+  // Find an available, valid slug: <slug>-copy, -copy-2, …
+  let slug = ''
+  for (let n = 1; n <= 25; n++) {
+    const candidate = makeCopySlug(source.slug, n)
+    if (!slugSchema.safeParse(candidate).success) continue
+    const [taken] = await db.select({ id: sites.id }).from(sites).where(eq(sites.slug, candidate)).limit(1)
+    if (!taken) {
+      slug = candidate
+      break
+    }
+  }
+  if (!slug) return { ok: false, error: 'Could not generate a unique URL. Rename the original first.' }
+
+  try {
+    const [newSite] = await db
+      .insert(sites)
+      .values({
+        ownerId: user.id,
+        slug,
+        theme: source.theme,
+        seo: source.seo,
+        isPublished: false, // copies always start as drafts
+      })
+      .returning()
+    if (!newSite) return { ok: false, error: 'Could not duplicate the site.' }
+
+    const sourceBlocks = await db.select().from(blocks).where(eq(blocks.siteId, source.id))
+    if (sourceBlocks.length > 0) {
+      await db.insert(blocks).values(
+        sourceBlocks.map((b) => ({
+          siteId: newSite.id,
+          type: b.type,
+          position: b.position,
+          isVisible: b.isVisible,
+          visibleFrom: b.visibleFrom,
+          visibleUntil: b.visibleUntil,
+          data: b.data,
+        })),
+      )
+    }
+
+    revalidatePath('/dashboard')
+    return { ok: true, id: newSite.id }
+  } catch {
+    return { ok: false, error: 'Could not duplicate the site. Please try again.' }
+  }
+}
+
 export async function deleteSite(
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string }> {
