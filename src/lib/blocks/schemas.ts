@@ -168,6 +168,11 @@ export const countdownBlockSchema = z.object({
   expiredText: z.string().max(120).default("We're live!"),
 })
 
+export const spotifyBlockSchema = z.object({
+  type: z.literal('spotify'),
+  url: urlOrEmpty,
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -183,6 +188,7 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   testimonialBlockSchema,
   contactBlockSchema,
   countdownBlockSchema,
+  spotifyBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -204,6 +210,7 @@ export const BLOCK_SCHEMAS = {
   testimonial: testimonialBlockSchema,
   contact: contactBlockSchema,
   countdown: countdownBlockSchema,
+  spotify: spotifyBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */

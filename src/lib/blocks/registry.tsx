@@ -14,6 +14,7 @@ import {
   Quote,
   UserPlus,
   Timer,
+  Music,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -33,6 +34,7 @@ import { FaqBlock } from '@/components/blocks/render/FaqBlock'
 import { TestimonialBlock } from '@/components/blocks/render/TestimonialBlock'
 import { ContactBlock } from '@/components/blocks/render/ContactBlock'
 import { CountdownBlock } from '@/components/blocks/render/CountdownBlock'
+import { SpotifyBlock } from '@/components/blocks/render/SpotifyBlock'
 
 export interface RenderArgs {
   id: string
@@ -254,6 +256,18 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
           : 'No date set'
         : '',
   },
+  spotify: {
+    type: 'spotify',
+    label: 'Spotify',
+    description: 'Embed a track, album, playlist or podcast',
+    icon: Music,
+    group: 'media',
+    proOnly: false,
+    defaultData: { type: 'spotify', url: '' },
+    render: ({ id, data }) =>
+      data.type === 'spotify' ? <SpotifyBlock id={id} data={data} /> : null,
+    summary: (data) => (data.type === 'spotify' ? data.url || 'No link set' : ''),
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -285,6 +299,8 @@ export function blockRendersContent(data: BlockData): boolean {
       return data.fullName.trim().length > 0
     case 'countdown':
       return data.targetDate.trim().length > 0
+    case 'spotify':
+      return data.url.trim().length > 0
     default:
       return true
   }

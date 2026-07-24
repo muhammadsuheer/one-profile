@@ -14,6 +14,7 @@ import { FaqEdit } from '@/components/blocks/edit/FaqEdit'
 import { TestimonialEdit } from '@/components/blocks/edit/TestimonialEdit'
 import { ContactEdit } from '@/components/blocks/edit/ContactEdit'
 import { CountdownEdit } from '@/components/blocks/edit/CountdownEdit'
+import { SpotifyEdit } from '@/components/blocks/edit/SpotifyEdit'
 
 /**
  * Editor forms, kept in a SEPARATE map from the render registry so that
@@ -44,4 +45,5 @@ export const BLOCK_EDITORS: Partial<Record<BlockType, ComponentType<BlockEditPro
   testimonial: TestimonialEdit,
   contact: ContactEdit,
   countdown: CountdownEdit,
+  spotify: SpotifyEdit,
 }
