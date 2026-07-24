@@ -25,11 +25,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const title = data.site.seo?.title ?? name
   const description = data.site.seo?.description ?? tagline ?? `${name} — powered by OnePage`
 
+  const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
+  const canonical = `${base}/${data.site.slug}`
+
   return {
+    metadataBase: new URL(base),
     title,
     description,
-    openGraph: { title, description, type: 'profile' },
+    alternates: { canonical },
+    openGraph: { title, description, type: 'profile', url: canonical },
     twitter: { card: 'summary_large_image', title, description },
+    robots: { index: true, follow: true },
   }
 }
 
