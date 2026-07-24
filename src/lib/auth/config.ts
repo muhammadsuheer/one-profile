@@ -9,6 +9,10 @@ import { env, googleAuthEnabled } from '@/env'
  * the Credentials provider (Node-only).
  */
 export const authConfig = {
+  // Trust the deployment host when constructing callback URLs. Required for
+  // Auth.js v5 outside auto-detected Vercel (self-hosted, preview, custom
+  // domains); without it, /api/auth/* rejects requests with UntrustedHost.
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },
   providers: googleAuthEnabled
