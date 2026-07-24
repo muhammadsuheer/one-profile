@@ -81,6 +81,26 @@ export const verificationTokens = pgTable(
   }),
 )
 
+/**
+ * Password reset tokens (app-managed, separate from Auth.js verificationTokens
+ * which the adapter owns). One row per outstanding reset request; consumed and
+ * deleted on use, and purged when expired.
+ */
+export const passwordResetTokens = pgTable(
+  'password_reset_tokens',
+  {
+    token: text('token').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    expires: timestamp('expires', { withTimezone: true, mode: 'date' }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index('prt_user_idx').on(t.userId),
+  }),
+)
+
 /* ------------------------------------------------------------------ */
 /*  Application tables (§5).                                           */
 /* ------------------------------------------------------------------ */
