@@ -21,6 +21,10 @@ const envSchema = z.object({
   CREEM_WEBHOOK_SECRET: z.string().optional().default(''),
   CREEM_PRODUCT_ID: z.string().optional().default(''),
   RESEND_API_KEY: z.string().optional().default(''),
+  // From-address for transactional email once you've verified a domain in
+  // Resend, e.g. "OnePage <noreply@yourdomain.com>". Falls back to Resend's
+  // test address (only delivers to the account owner) when blank.
+  EMAIL_FROM: z.string().optional().default(''),
   YOUTUBE_API_KEY: z.string().optional().default(''),
   NEXT_PUBLIC_APP_URL: z.string().url(),
 })

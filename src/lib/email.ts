@@ -4,8 +4,12 @@ export function emailEnabled(): boolean {
   return env.RESEND_API_KEY.length > 0
 }
 
-/** Default from-address. Resend requires a verified domain in production. */
-const FROM = 'OnePage <onboarding@resend.dev>'
+/**
+ * Default from-address. Set EMAIL_FROM to an address on a domain you've
+ * verified in Resend (e.g. "OnePage <noreply@yourdomain.com>") to send to real
+ * recipients. The resend.dev fallback only delivers to the account owner.
+ */
+const FROM = env.EMAIL_FROM || 'OnePage <onboarding@resend.dev>'
 
 /**
  * Send a transactional email via the Resend REST API (no SDK dependency).
