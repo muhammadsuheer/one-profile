@@ -13,6 +13,7 @@ import {
   HelpCircle,
   Quote,
   UserPlus,
+  Timer,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -31,6 +32,7 @@ import { YoutubeFeedBlock } from '@/components/blocks/render/YoutubeFeedBlock'
 import { FaqBlock } from '@/components/blocks/render/FaqBlock'
 import { TestimonialBlock } from '@/components/blocks/render/TestimonialBlock'
 import { ContactBlock } from '@/components/blocks/render/ContactBlock'
+import { CountdownBlock } from '@/components/blocks/render/CountdownBlock'
 
 export interface RenderArgs {
   id: string
@@ -235,6 +237,23 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
       data.type === 'contact' ? <ContactBlock id={id} data={data} /> : null,
     summary: (data) => (data.type === 'contact' ? data.fullName || 'Save contact' : ''),
   },
+  countdown: {
+    type: 'countdown',
+    label: 'Countdown',
+    description: 'A live timer counting down to a date',
+    icon: Timer,
+    group: 'basic',
+    proOnly: false,
+    defaultData: { type: 'countdown', title: 'Launching in…', targetDate: '', expiredText: "We're live!" },
+    render: ({ id, data }) =>
+      data.type === 'countdown' ? <CountdownBlock id={id} data={data} /> : null,
+    summary: (data) =>
+      data.type === 'countdown'
+        ? data.targetDate
+          ? new Date(data.targetDate).toLocaleString()
+          : 'No date set'
+        : '',
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -264,6 +283,8 @@ export function blockRendersContent(data: BlockData): boolean {
       return data.quote.trim().length > 0
     case 'contact':
       return data.fullName.trim().length > 0
+    case 'countdown':
+      return data.targetDate.trim().length > 0
     default:
       return true
   }

@@ -152,6 +152,14 @@ export const contactBlockSchema = z.object({
   website: urlOrEmpty.optional(),
 })
 
+export const countdownBlockSchema = z.object({
+  type: z.literal('countdown'),
+  title: z.string().max(120).optional(),
+  // ISO timestamp of the moment being counted down to.
+  targetDate: z.union([z.string().datetime({ offset: true }), z.literal('')]).default(''),
+  expiredText: z.string().max(120).default("We're live!"),
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -166,6 +174,7 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   faqBlockSchema,
   testimonialBlockSchema,
   contactBlockSchema,
+  countdownBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -186,6 +195,7 @@ export const BLOCK_SCHEMAS = {
   faq: faqBlockSchema,
   testimonial: testimonialBlockSchema,
   contact: contactBlockSchema,
+  countdown: countdownBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */
