@@ -65,10 +65,16 @@ export async function createSiteFromOnboarding(
     hideBranding: false,
   }
 
-  const [site] = await db
-    .insert(sites)
-    .values({ ownerId: user.id, slug, theme, isPublished: false })
-    .returning()
+  let site: { id: string } | undefined
+  try {
+    const rows = await db
+      .insert(sites)
+      .values({ ownerId: user.id, slug, theme, isPublished: false })
+      .returning({ id: sites.id })
+    site = rows[0]
+  } catch {
+    return { ok: false, error: 'Could not create your page. Please try again.' }
+  }
   if (!site) return { ok: false, error: 'Could not create your page. Please try again.' }
 
   // AI-enhance the tagline when Groq is configured; otherwise use the rule-based one.
@@ -110,7 +116,11 @@ export async function createSiteFromOnboarding(
     })
   }
 
-  await db.insert(blocks).values(blockValues)
+  try {
+    await db.insert(blocks).values(blockValues)
+  } catch {
+    return { ok: false, error: 'Could not create your page. Please try again.' }
+  }
 
   return { ok: true, data: { siteId: site.id } }
 }

@@ -33,22 +33,28 @@ export async function createSite(
   const [existing] = await db.select({ id: sites.id }).from(sites).where(eq(sites.slug, slug)).limit(1)
   if (existing) return { error: 'That URL is already taken.' }
 
-  const [site] = await db
-    .insert(sites)
-    .values({ ownerId: user.id, slug, theme: DEFAULT_THEME, isPublished: false })
-    .returning()
-  if (!site) return { error: 'Could not create the site. Please try again.' }
+  let siteId: string
+  try {
+    const [site] = await db
+      .insert(sites)
+      .values({ ownerId: user.id, slug, theme: DEFAULT_THEME, isPublished: false })
+      .returning()
+    if (!site) return { error: 'Could not create the site. Please try again.' }
 
-  // Seed a starter profile block so the page isn't blank.
-  await db.insert(blocks).values({
-    siteId: site.id,
-    type: 'profile',
-    position: 1000,
-    data: { type: 'profile', avatarUrl: '', name: user.name ?? 'Your name', tagline: '' },
-  })
+    // Seed a starter profile block so the page isn't blank.
+    await db.insert(blocks).values({
+      siteId: site.id,
+      type: 'profile',
+      position: 1000,
+      data: { type: 'profile', avatarUrl: '', name: user.name ?? 'Your name', tagline: '' },
+    })
+    siteId = site.id
+  } catch {
+    return { error: 'Could not create the site. Please try again.' }
+  }
 
   revalidatePath('/dashboard')
-  redirect(`/dashboard/${site.id}/editor`)
+  redirect(`/dashboard/${siteId}/editor`)
 }
 
 export async function deleteSite(
