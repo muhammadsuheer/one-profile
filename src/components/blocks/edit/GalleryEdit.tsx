@@ -3,8 +3,8 @@
 import { Plus, Trash2 } from 'lucide-react'
 import type { BlockData } from '@/lib/blocks/schemas'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { EditField } from '@/components/blocks/edit/field'
+import { ImageUploadField } from '@/components/blocks/edit/ImageUploadField'
 
 export function GalleryEdit({
   data,
@@ -45,24 +45,25 @@ export function GalleryEdit({
 
       <div className="space-y-2">
         {data.images.map((img, i) => (
-          <div key={i} className="space-y-1.5 rounded-lg border border-neutral-200 p-2.5">
-            <div className="flex items-center gap-2">
-              <Input
-                value={img.url}
-                placeholder="Image URL"
-                onChange={(e) => setImage(i, { url: e.target.value })}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
+          <div key={i} className="space-y-2 rounded-xl border border-neutral-200 p-2.5">
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <ImageUploadField
+                  value={img.url}
+                  placeholder="Image URL"
+                  onChange={(url) => setImage(i, { url })}
+                />
+              </div>
+              <button
+                type="button"
                 aria-label="Remove image"
                 onClick={() =>
                   onChange({ ...data, images: data.images.filter((_, j) => j !== i) })
                 }
-                className="shrink-0 text-neutral-400 hover:text-red-600"
+                className="flex h-11 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"
               >
                 <Trash2 className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <Input
@@ -81,14 +82,13 @@ export function GalleryEdit({
       </div>
 
       {data.images.length < 24 && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
+        <button
+          type="button"
           onClick={() => onChange({ ...data, images: [...data.images, { url: '' }] })}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 py-2.5 text-sm font-medium text-neutral-500 transition-colors hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-700"
         >
           <Plus className="h-4 w-4" /> Add image
-        </Button>
+        </button>
       )}
     </div>
   )

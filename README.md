@@ -13,7 +13,7 @@ A production-ready, multi-tenant **link-in-bio SaaS**. Every user signs up, gets
 | Auth | Auth.js (NextAuth v5) — email/password + Google |
 | Validation | Zod on every API/action boundary |
 | Drag & drop | @dnd-kit |
-| Image uploads | UploadThing |
+| Image uploads | Vercel Blob |
 | Email | Resend |
 | Icons | lucide-react |
 | Deploy | Vercel |
@@ -55,7 +55,7 @@ cp .env.example .env.local
 | `AUTH_SECRET` | ✅ | Run `openssl rand -base64 32` (or `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`) |
 | `NEXT_PUBLIC_APP_URL` | ✅ | e.g. `http://localhost:3000` in dev |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | optional | Enables the "Continue with Google" button |
-| `UPLOADTHING_TOKEN` | optional | Enables image uploads |
+| `BLOB_READ_WRITE_TOKEN` | optional | Enables image uploads (Vercel Blob; auto-injected on Vercel when a Blob store is connected) |
 | `RESEND_API_KEY` | optional | Transactional email |
 | `YOUTUBE_API_KEY` | optional | Powers the YouTube feed block refresh |
 
@@ -112,7 +112,7 @@ src/lib/blocks/             Block schemas, registries, targets
 src/lib/analytics.ts        SQL GROUP BY aggregations
 src/app/[slug]/             Public page + OG image
 src/app/dashboard/          Editor, design, audience, analytics, settings
-src/app/api/                r (click redirect), pv (view beacon), subscribe, cron, uploadthing, auth
+src/app/api/                r (click redirect), pv (view beacon), subscribe, cron, blob (upload), auth
 ```
 
 ## Deploying to Vercel

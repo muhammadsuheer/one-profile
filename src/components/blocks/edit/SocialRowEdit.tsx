@@ -6,10 +6,8 @@ import {
   type BlockData,
   type SocialPlatform,
 } from '@/lib/blocks/schemas'
-import { SOCIAL_LABELS } from '@/components/blocks/social-icons'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Select } from '@/components/ui/select'
+import { PlatformPicker } from '@/components/blocks/edit/PlatformPicker'
 
 const PLATFORMS = socialPlatformSchema.options
 
@@ -30,7 +28,10 @@ export function SocialRowEdit({
     onChange({ ...data, items: data.items.filter((_, i) => i !== index) })
   }
   const addItem = () => {
-    onChange({ ...data, items: [...data.items, { platform: 'instagram', url: '' }] })
+    // Smart default: pick the first platform not already used.
+    const used = new Set(data.items.map((i) => i.platform))
+    const next = PLATFORMS.find((p) => !used.has(p)) ?? 'website'
+    onChange({ ...data, items: [...data.items, { platform: next, url: '' }] })
   }
 
   return (
@@ -41,39 +42,31 @@ export function SocialRowEdit({
 
       {data.items.map((item, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className="w-36 shrink-0">
-            <Select
-              value={item.platform}
-              onChange={(e) => setItem(i, { platform: e.target.value as SocialPlatform })}
-            >
-              {PLATFORMS.map((p) => (
-                <option key={p} value={p}>
-                  {SOCIAL_LABELS[p]}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <PlatformPicker value={item.platform} onChange={(platform) => setItem(i, { platform })} />
           <Input
             value={item.url}
             placeholder="https://…"
             onChange={(e) => setItem(i, { url: e.target.value })}
           />
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
             aria-label="Remove"
             onClick={() => removeItem(i)}
-            className="shrink-0 text-neutral-400 hover:text-red-600"
+            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       ))}
 
       {data.items.length < 12 && (
-        <Button variant="outline" size="sm" onClick={addItem} className="w-full">
+        <button
+          type="button"
+          onClick={addItem}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 py-2.5 text-sm font-medium text-neutral-500 transition-colors hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-700"
+        >
           <Plus className="h-4 w-4" /> Add social
-        </Button>
+        </button>
       )}
     </div>
   )

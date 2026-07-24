@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   PointerSensor,
   KeyboardSensor,
@@ -17,17 +18,19 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { ArrowLeft, ExternalLink, Check, Loader2, AlertCircle, Sparkles } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, AlertCircle, Sparkles, Plus, Eye, X } from 'lucide-react'
 import type { ThemeConfig } from '@/lib/theme'
 import { blockDataSchema, type BlockData, type BlockType } from '@/lib/blocks/schemas'
 import { BLOCK_REGISTRY } from '@/lib/blocks/registry'
 import type { Block } from '@/db/schema'
 import type { EditorBlock, SaveStatus } from '@/components/editor/types'
 import { BlockListItem } from '@/components/editor/BlockListItem'
+import { BlockOverlayCard } from '@/components/editor/BlockOverlayCard'
 import { PhonePreview } from '@/components/editor/PhonePreview'
-import { AddBlockMenu } from '@/components/editor/AddBlockMenu'
+import { AddBlockModal } from '@/components/editor/AddBlockModal'
+import { SharePopover } from '@/components/editor/SharePopover'
 import { Switch } from '@/components/ui/switch'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   addBlock,
   updateBlockData,
@@ -50,6 +53,7 @@ const byPosition = (a: EditorBlock, b: EditorBlock) => a.position - b.position
 export function EditorClient({
   siteId,
   slug,
+  appUrl,
   initialIsPublished,
   theme,
   plan,
@@ -57,24 +61,38 @@ export function EditorClient({
 }: {
   siteId: string
   slug: string
+  appUrl: string
   initialIsPublished: boolean
   theme: ThemeConfig
   plan: 'free' | 'pro'
   initialBlocks: Block[]
 }) {
   const [blocks, setBlocks] = useState<EditorBlock[]>(() =>
-    [...initialBlocks].map((b) => ({
-      id: b.id,
-      type: b.type,
-      position: b.position,
-      isVisible: b.isVisible,
-      data: b.data,
-    })).sort(byPosition),
+    [...initialBlocks]
+      .map((b) => ({
+        id: b.id,
+        type: b.type,
+        position: b.position,
+        isVisible: b.isVisible,
+        data: b.data,
+      }))
+      .sort(byPosition),
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [isPublished, setIsPublished] = useState(initialIsPublished)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [addOpen, setAddOpen] = useState(false)
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [origin, setOrigin] = useState(() => appUrl.replace(/\/$/, ''))
+
+  useEffect(() => {
+    setOrigin(window.location.origin)
+  }, [])
+
+  const publicUrl = `${origin}/${slug}`
+  const activeBlock = activeId ? blocks.find((b) => b.id === activeId) ?? null : null
 
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
   const deleteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -132,9 +150,10 @@ export function EditorClient({
     if (res.ok) {
       const nb = res.data
       setBlocks((bs) =>
-        [...bs, { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data }].sort(
-          byPosition,
-        ),
+        [
+          ...bs,
+          { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data },
+        ].sort(byPosition),
       )
       setSelectedId(res.data.id)
       setSaveStatus('saved')
@@ -150,9 +169,10 @@ export function EditorClient({
     if (res.ok) {
       const nb = res.data
       setBlocks((bs) =>
-        [...bs, { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data }].sort(
-          byPosition,
-        ),
+        [
+          ...bs,
+          { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data },
+        ].sort(byPosition),
       )
       setSaveStatus('saved')
     } else {
@@ -175,7 +195,6 @@ export function EditorClient({
     setBlocks((bs) => bs.filter((b) => b.id !== id))
     if (selectedId === id) setSelectedId(null)
 
-    // Delayed commit — the server delete only fires if the toast isn't undone.
     deleteTimers.current[id] = setTimeout(async () => {
       delete deleteTimers.current[id]
       const res = await deleteBlock({ siteId, blockId: id })
@@ -198,6 +217,7 @@ export function EditorClient({
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null)
     const { active, over } = event
     if (!over || active.id === over.id) return
     const oldIndex = blocks.findIndex((b) => b.id === active.id)
@@ -230,7 +250,7 @@ export function EditorClient({
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-100"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-100"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -241,18 +261,12 @@ export function EditorClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {isPublished && (
-            <Link
-              href={`/${slug}`}
-              target="_blank"
-              className="flex items-center gap-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900"
-            >
-              <ExternalLink className="h-4 w-4" /> View
-            </Link>
-          )}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-neutral-600">{isPublished ? 'Published' : 'Draft'}</span>
+        <div className="flex items-center gap-2.5">
+          <SharePopover url={publicUrl} published={isPublished} />
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 py-1 pl-3 pr-1.5">
+            <span className="text-sm font-medium text-neutral-600">
+              {isPublished ? 'Published' : 'Draft'}
+            </span>
             <Switch checked={isPublished} onCheckedChange={handlePublish} aria-label="Publish site" />
           </div>
         </div>
@@ -263,7 +277,9 @@ export function EditorClient({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Blocks</h2>
-            <AddBlockMenu onAdd={handleAdd} plan={plan} />
+            <Button variant="primary" size="sm" onClick={() => setAddOpen(true)}>
+              <Plus className="h-4 w-4" /> Add block
+            </Button>
           </div>
 
           {blocks.length === 0 ? (
@@ -272,9 +288,7 @@ export function EditorClient({
                 <Sparkles className="h-6 w-6 text-neutral-400" />
               </div>
               <p className="mt-3 text-base font-semibold text-neutral-900">Let&apos;s build your page</p>
-              <p className="mt-1 text-sm text-neutral-500">
-                Start with one of these — add more anytime.
-              </p>
+              <p className="mt-1 text-sm text-neutral-500">Start with one of these — add more anytime.</p>
               <div className="mx-auto mt-5 grid max-w-sm grid-cols-2 gap-2">
                 {(
                   [
@@ -299,7 +313,13 @@ export function EditorClient({
               </div>
             </div>
           ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={(e) => setActiveId(String(e.active.id))}
+              onDragEnd={handleDragEnd}
+              onDragCancel={() => setActiveId(null)}
+            >
               <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-2">
                   {blocks.map((block) => (
@@ -316,18 +336,53 @@ export function EditorClient({
                   ))}
                 </div>
               </SortableContext>
+              <DragOverlay>
+                {activeBlock ? <BlockOverlayCard block={activeBlock} /> : null}
+              </DragOverlay>
             </DndContext>
           )}
         </div>
 
-        {/* Live preview */}
-        <div className="lg:sticky lg:top-20 lg:self-start">
-          <PhonePreview blocks={blocks} theme={theme} />
+        {/* Live preview (desktop) — sticky side panel, always fully visible */}
+        <div className="hidden lg:sticky lg:top-[72px] lg:block lg:self-start">
+          <PhonePreview blocks={blocks} theme={theme} selectedId={selectedId} />
         </div>
       </div>
 
+      {/* Mobile preview trigger + sheet */}
+      {!mobilePreviewOpen && (
+        <button
+          type="button"
+          onClick={() => setMobilePreviewOpen(true)}
+          className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-neutral-900 px-4 py-3 text-sm font-semibold text-white shadow-lg lg:hidden"
+        >
+          <Eye className="h-4 w-4" /> Preview
+        </button>
+      )}
+      {mobilePreviewOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-neutral-100 lg:hidden">
+          <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3">
+            <p className="text-sm font-semibold">Preview</p>
+            <button
+              type="button"
+              onClick={() => setMobilePreviewOpen(false)}
+              aria-label="Close preview"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="flex flex-1 items-center justify-center overflow-auto p-6">
+            <PhonePreview blocks={blocks} theme={theme} selectedId={selectedId} hideChrome />
+          </div>
+        </div>
+      )}
+
+      {/* Add block modal */}
+      <AddBlockModal open={addOpen} onClose={() => setAddOpen(false)} onAdd={handleAdd} plan={plan} />
+
       {/* Toasts */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-4">
+      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4">
         {toasts.map((t) => (
           <div
             key={t.id}

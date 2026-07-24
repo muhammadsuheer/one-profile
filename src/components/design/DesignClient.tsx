@@ -4,10 +4,8 @@ import { useRef, useState } from 'react'
 import { Check, Loader2, AlertCircle } from 'lucide-react'
 import {
   themeConfigSchema,
-  THEME_PRESETS,
-  PRESET_LABELS,
+  PALETTES,
   type ThemeConfig,
-  type ThemePreset,
   type ButtonStyle,
   type FontFamily,
 } from '@/lib/theme'
@@ -17,7 +15,6 @@ import { updateTheme } from '@/app/dashboard/[siteId]/actions'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
-const PRESETS: ThemePreset[] = ['midnight', 'light', 'sunset']
 const FONTS: FontFamily[] = ['Inter', 'Sans', 'Serif', 'Mono', 'Rounded']
 const BUTTONS: ButtonStyle[] = ['rounded', 'pill', 'square']
 const SWATCHES = ['#F5124A', '#6366F1', '#10B981', '#F59E0B', '#EC4899', '#0EA5E9']
@@ -70,31 +67,57 @@ export function DesignClient({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-5">
-        <Section title="Theme preset">
-          <div className="grid grid-cols-3 gap-2">
-            {PRESETS.map((p) => {
-              const t = THEME_PRESETS[p]
-              const active = theme.preset === p
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => update({ preset: p })}
-                  className={cn(
-                    'rounded-xl border p-2 text-left transition-colors',
-                    active ? 'border-neutral-900 ring-1 ring-neutral-900' : 'border-neutral-200 hover:border-neutral-300',
-                  )}
-                >
-                  <div
-                    className="flex h-12 items-center justify-center rounded-lg"
-                    style={{ background: t.bg }}
-                  >
-                    <span className="h-4 w-4 rounded-full" style={{ background: theme.accentColor }} />
-                  </div>
-                  <p className="mt-1.5 text-xs font-medium">{PRESET_LABELS[p]}</p>
-                </button>
-              )
-            })}
+        <Section title="Palette">
+          <div className="space-y-4">
+            {(['light', 'dark'] as const).map((mode) => (
+              <div key={mode} className="space-y-2">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                  {mode === 'light' ? 'Light' : 'Dark'}
+                </p>
+                <div className="grid grid-cols-5 gap-2">
+                  {PALETTES.filter((p) => p.mode === mode).map((p) => {
+                    const active = theme.preset === p.id
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        title={p.name}
+                        onClick={() => {
+                          setHex(p.accent)
+                          update({ preset: p.id, accentColor: p.accent })
+                        }}
+                        className={cn(
+                          'rounded-xl border p-1 transition-all',
+                          active
+                            ? 'border-neutral-900 ring-1 ring-neutral-900'
+                            : 'border-neutral-200 hover:border-neutral-300',
+                        )}
+                      >
+                        <div
+                          className="flex h-9 items-center justify-center gap-1 rounded-lg"
+                          style={{ background: p.tokens.bg }}
+                        >
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{ background: p.accent }}
+                          />
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{
+                              background: p.tokens.surface,
+                              boxShadow: `inset 0 0 0 1px ${p.tokens.border}`,
+                            }}
+                          />
+                        </div>
+                        <p className="mt-1 truncate text-center text-[10px] font-medium text-neutral-500">
+                          {p.name}
+                        </p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </Section>
 

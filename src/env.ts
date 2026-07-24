@@ -15,7 +15,7 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(1),
   AUTH_GOOGLE_ID: z.string().optional().default(''),
   AUTH_GOOGLE_SECRET: z.string().optional().default(''),
-  UPLOADTHING_TOKEN: z.string().optional().default(''),
+  BLOB_READ_WRITE_TOKEN: z.string().optional().default(''),
   RESEND_API_KEY: z.string().optional().default(''),
   YOUTUBE_API_KEY: z.string().optional().default(''),
   NEXT_PUBLIC_APP_URL: z.string().url(),

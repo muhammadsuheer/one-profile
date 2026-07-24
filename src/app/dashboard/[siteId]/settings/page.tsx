@@ -5,7 +5,7 @@ import { sites } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
 import { env } from '@/env'
 import { seoConfigSchema } from '@/lib/theme'
-import { SettingsForm } from '@/components/dashboard/SettingsForm'
+import { SettingsClient } from '@/components/dashboard/SettingsClient'
 import { DeleteSiteButton } from '@/components/dashboard/DeleteSiteButton'
 
 export const metadata = { title: 'Settings' }
@@ -26,12 +26,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ siteI
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-500">Manage your page URL, domain, SEO and visibility.</p>
-      </div>
-
-      <SettingsForm
+      <SettingsClient
         site={{
           id: site.id,
           slug: site.slug,

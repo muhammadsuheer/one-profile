@@ -284,3 +284,66 @@ export async function updateSettings(
   revalidatePath('/dashboard')
   return { ok: true }
 }
+
+/** Auto-save variant of settings (typed input, ActionResult) used by SettingsClient. */
+export async function saveSettings(input: {
+  siteId: string
+  slug: string
+  customDomain: string
+  seoTitle: string
+  seoDescription: string
+  seoOgImageUrl: string
+  isPublished: boolean
+}): Promise<ActionResult<undefined>> {
+  const ctx = await ownedSite(input.siteId)
+  if (!ctx) return { ok: false, error: 'Site not found' }
+
+  const slugParsed = slugSchema.safeParse(normalizeSlug(input.slug))
+  if (!slugParsed.success) return { ok: false, error: slugParsed.error.issues[0]?.message ?? 'Invalid URL' }
+  const slug = slugParsed.data
+
+  if (slug !== ctx.site.slug) {
+    const [taken] = await db
+      .select({ id: sites.id })
+      .from(sites)
+      .where(and(eq(sites.slug, slug), ne(sites.id, ctx.site.id)))
+      .limit(1)
+    if (taken) return { ok: false, error: 'That URL is already taken.' }
+  }
+
+  let customDomain: string | null = ctx.site.customDomain
+  if (ctx.user.plan === 'pro') {
+    const raw = input.customDomain.trim().toLowerCase()
+    if (raw === '') {
+      customDomain = null
+    } else if (!domainRegex.test(raw)) {
+      return { ok: false, error: 'Enter a valid domain, e.g. links.example.com' }
+    } else {
+      const [taken] = await db
+        .select({ id: sites.id })
+        .from(sites)
+        .where(and(eq(sites.customDomain, raw), ne(sites.id, ctx.site.id)))
+        .limit(1)
+      if (taken) return { ok: false, error: 'That domain is already in use.' }
+      customDomain = raw
+    }
+  }
+
+  const seoParsed = seoConfigSchema.safeParse({
+    title: input.seoTitle.trim() || undefined,
+    description: input.seoDescription.trim() || undefined,
+    ogImageUrl: input.seoOgImageUrl.trim() || undefined,
+  })
+  if (!seoParsed.success) return { ok: false, error: 'The social image must be a valid URL.' }
+
+  const oldSlug = ctx.site.slug
+  await db
+    .update(sites)
+    .set({ slug, customDomain, seo: seoParsed.data, isPublished: input.isPublished })
+    .where(eq(sites.id, ctx.site.id))
+
+  revalidatePath(`/${oldSlug}`)
+  revalidatePath(`/${slug}`)
+  revalidatePath('/dashboard')
+  return { ok: true, data: undefined }
+}

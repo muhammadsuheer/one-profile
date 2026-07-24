@@ -26,7 +26,7 @@ export function ProfileEdit({
 
       <ImageUploadField
         label="Avatar"
-        hint="Paste a URL or upload an image."
+        hint="Paste a URL, or upload / drag & drop an image."
         value={data.avatarUrl}
         onChange={(url) => onChange({ ...data, avatarUrl: url })}
       />

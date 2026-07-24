@@ -4,6 +4,7 @@ import { db } from '@/db'
 import { sites, blocks } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
 import { themeConfigSchema } from '@/lib/theme'
+import { env } from '@/env'
 import { EditorClient } from '@/components/editor/EditorClient'
 
 export const metadata = { title: 'Editor' }
@@ -32,6 +33,7 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
     <EditorClient
       siteId={site.id}
       slug={site.slug}
+      appUrl={env.NEXT_PUBLIC_APP_URL}
       initialIsPublished={site.isPublished}
       theme={theme}
       plan={user.plan}
