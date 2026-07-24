@@ -58,7 +58,7 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     await signIn('credentials', {
       email,
       password: parsed.data.password,
-      redirectTo: '/dashboard',
+      redirectTo: '/onboarding',
     })
   } catch (error) {
     if (error instanceof AuthError) {
