@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { and, eq } from 'drizzle-orm'
-import { Lock } from 'lucide-react'
+import { Lock, Download } from 'lucide-react'
 import { db } from '@/db'
 import { sites } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
@@ -86,7 +86,17 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ site
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-semibold tracking-tight">Analytics</h1>
-        <span className="text-sm text-neutral-500">Last {days} days</span>
+        <div className="flex items-center gap-3">
+          {user.plan === 'pro' && (
+            <a
+              href={`/api/export/${siteId}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </a>
+          )}
+          <span className="text-sm text-neutral-500">Last {days} days</span>
+        </div>
       </div>
 
       {user.plan === 'free' && (
