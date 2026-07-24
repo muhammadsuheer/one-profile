@@ -4,7 +4,7 @@ import { z } from 'zod'
 export const RESERVED_SLUGS = new Set([
   'api', 'dashboard', 'login', 'signup', 'admin', 'www', 'about', 'pricing', '_next',
   'settings', 'analytics', 'audience', 'design', 'editor', 'app', 'help', 'support',
-  'terms', 'privacy', 'blog', 'docs', 'status', 'account', 'billing', 'onepage', 'assets',
+  'terms', 'privacy', 'blog', 'docs', 'status', 'account', 'billing', 'foliopage', 'folio', 'assets',
   'forgot-password', 'reset-password', 'onboarding', 'sitemap', 'robots',
 ])
 

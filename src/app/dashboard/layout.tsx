@@ -11,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Link href="/dashboard" className="text-[15px] font-semibold tracking-tight">
-            OnePage
+            FolioPage
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link

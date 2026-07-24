@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             href="/"
             className="mb-8 block text-center text-lg font-semibold tracking-tight lg:hidden"
           >
-            OnePage
+            FolioPage
           </Link>
           {children}
         </div>

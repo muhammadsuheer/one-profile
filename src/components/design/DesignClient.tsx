@@ -193,7 +193,7 @@ export function DesignClient({
         <Section title="Branding">
           <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3">
             <div>
-              <p className="text-sm font-medium">Remove &ldquo;Made with OnePage&rdquo;</p>
+              <p className="text-sm font-medium">Remove &ldquo;Made with FolioPage&rdquo;</p>
               <p className="text-xs text-neutral-400">
                 {plan === 'pro'
                   ? 'Hide the footer badge on your public page.'

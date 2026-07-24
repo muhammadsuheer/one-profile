@@ -6,10 +6,10 @@ export function emailEnabled(): boolean {
 
 /**
  * Default from-address. Set EMAIL_FROM to an address on a domain you've
- * verified in Resend (e.g. "OnePage <noreply@yourdomain.com>") to send to real
+ * verified in Resend (e.g. "FolioPage <noreply@foliopage.site>") to send to real
  * recipients. The resend.dev fallback only delivers to the account owner.
  */
-const FROM = env.EMAIL_FROM || 'OnePage <onboarding@resend.dev>'
+const FROM = env.EMAIL_FROM || 'FolioPage <onboarding@resend.dev>'
 
 /**
  * Send a transactional email via the Resend REST API (no SDK dependency).
@@ -59,7 +59,7 @@ export function renderEmail(opts: { heading: string; body: string; ctaLabel?: st
       : ''
   return `<!doctype html><html><body style="margin:0;background:#fafafa;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0a0a0a">
     <div style="max-width:480px;margin:40px auto;background:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:32px">
-      <div style="font-weight:700;font-size:15px;margin-bottom:24px">OnePage</div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:24px">FolioPage</div>
       <h1 style="font-size:20px;font-weight:600;letter-spacing:-0.02em;margin:0 0 12px">${opts.heading}</h1>
       <p style="font-size:14px;color:#525252;line-height:1.6;margin:0 0 16px">${opts.body}</p>
       ${button}

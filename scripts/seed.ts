@@ -17,7 +17,7 @@ const sql = neon(databaseUrl)
 const db = drizzle(sql, { schema })
 
 async function main() {
-  const demoEmail = 'demo@onepage.dev'
+  const demoEmail = 'demo@foliopage.site'
 
   // Idempotent: removing the demo user cascades to its sites, blocks, etc.
   await db.delete(schema.users).where(eq(schema.users.email, demoEmail))
@@ -106,7 +106,7 @@ async function main() {
   ])
 
   console.log('✅ Seeded demo data')
-  console.log('   Login:       demo@onepage.dev / password123')
+  console.log('   Login:       demo@foliopage.site / password123')
   console.log('   Public page: /ava')
 }
 

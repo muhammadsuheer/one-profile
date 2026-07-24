@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const tagline = profile?.tagline
 
   const title = data.site.seo?.title ?? name
-  const description = data.site.seo?.description ?? tagline ?? `${name} — powered by OnePage`
+  const description = data.site.seo?.description ?? tagline ?? `${name} — powered by FolioPage`
 
   const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
   const canonical = `${base}/${data.site.slug}`
@@ -77,7 +77,7 @@ export default async function PublicPage({ params }: Params) {
               href="/"
               className="inline-block text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
             >
-              Made with OnePage
+              Made with FolioPage
             </a>
           </footer>
         )}

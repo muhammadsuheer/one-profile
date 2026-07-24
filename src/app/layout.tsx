@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: {
-    default: 'OnePage — Your link in bio',
-    template: '%s · OnePage',
+    default: 'FolioPage — Your link in bio',
+    template: '%s · FolioPage',
   },
   description: 'Build a beautiful, block-based link-in-bio page in minutes.',
 }

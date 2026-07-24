@@ -46,7 +46,7 @@ export async function requestPasswordReset(
       const url = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/reset-password?token=${token}`
       await sendEmail({
         to: email,
-        subject: 'Reset your OnePage password',
+        subject: 'Reset your FolioPage password',
         html: renderEmail({
           heading: 'Reset your password',
           body: 'We received a request to reset your password. This link expires in 1 hour.',

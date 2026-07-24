@@ -22,7 +22,7 @@ const envSchema = z.object({
   CREEM_PRODUCT_ID: z.string().optional().default(''),
   RESEND_API_KEY: z.string().optional().default(''),
   // From-address for transactional email once you've verified a domain in
-  // Resend, e.g. "OnePage <noreply@yourdomain.com>". Falls back to Resend's
+  // Resend, e.g. "FolioPage <noreply@foliopage.site>". Falls back to Resend's
   // test address (only delivers to the account owner) when blank.
   EMAIL_FROM: z.string().optional().default(''),
   YOUTUBE_API_KEY: z.string().optional().default(''),

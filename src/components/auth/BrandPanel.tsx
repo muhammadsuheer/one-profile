@@ -11,7 +11,7 @@ export function BrandPanel() {
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-[#F5124A]/10 blur-[110px]" />
 
       <Link href="/" className="relative z-10 text-lg font-semibold tracking-tight">
-        OnePage
+        FolioPage
       </Link>
 
       <div className="relative z-10">

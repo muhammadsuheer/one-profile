@@ -31,7 +31,7 @@ export default function Home() {
       {/* Nav */}
       <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <span className="text-lg font-semibold tracking-tight">OnePage</span>
+          <span className="text-lg font-semibold tracking-tight">FolioPage</span>
           <nav className="flex items-center gap-2 text-sm">
             <Link href="/login" className="rounded-lg px-3 py-2 font-medium text-white/70 hover:text-white">
               Log in
@@ -169,7 +169,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-white/5">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 text-sm text-white/40 sm:flex-row">
-          <span className="font-semibold text-white/70">OnePage</span>
+          <span className="font-semibold text-white/70">FolioPage</span>
           <span>Built with Next.js. © {2026}</span>
         </div>
       </footer>

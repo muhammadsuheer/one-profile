@@ -9,7 +9,7 @@ const PRO_FEATURES = [
   'All blocks — gallery, product, YouTube feed',
   'Custom domain',
   'Full 30-day analytics',
-  'Remove OnePage branding',
+  'Remove FolioPage branding',
   'AI copy generation',
 ]
 

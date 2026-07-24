@@ -1,4 +1,4 @@
-# OnePage
+# FolioPage
 
 A production-ready, multi-tenant **link-in-bio SaaS**. Every user signs up, gets a public page at a unique URL (`/<slug>`), and manages it through a block-based dashboard with a live phone preview. Think Linktree / Beacons, but block-based and self-hosted.
 
@@ -62,7 +62,7 @@ cp .env.example .env.local
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | optional | Enables the "Continue with Google" button |
 | `BLOB_READ_WRITE_TOKEN` | optional | Enables image uploads (Vercel Blob; auto-injected on Vercel when a Blob store is connected) |
 | `RESEND_API_KEY` | optional | Transactional email (password reset). |
-| `EMAIL_FROM` | optional | From-address once you've verified a domain in Resend (e.g. `OnePage <noreply@yourdomain.com>`). Blank uses Resend's test address, which only delivers to the account owner. A `*.vercel.app` host can't be verified — use a custom domain (add the DKIM/SPF records under Vercel → Domains → DNS). |
+| `EMAIL_FROM` | optional | From-address once you've verified a domain in Resend (e.g. `FolioPage <noreply@foliopage.site>`). Blank uses Resend's test address, which only delivers to the account owner. A `*.vercel.app` host can't be verified — use a custom domain (add the DKIM/SPF records under Vercel → Domains → DNS). |
 | `YOUTUBE_API_KEY` | optional | Powers the YouTube feed block refresh |
 | `GROQ_API_KEY` | optional | Enables AI copy generation — bio/tagline + "improve with AI" (free key at console.groq.com) |
 | `CREEM_API_KEY` | optional | Creem billing API key (test keys start with `creem_test_`) |
@@ -81,7 +81,7 @@ npm run db:migrate    # apply it to Neon
 npm run db:seed       # demo user + published /ava page
 ```
 
-Demo login after seeding: **demo@onepage.dev / password123** → public page at `/ava`.
+Demo login after seeding: **demo@foliopage.site / password123** → public page at `/ava`.
 
 ### 5. Run
 
