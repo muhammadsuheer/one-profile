@@ -14,7 +14,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
             OnePage
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden max-w-[180px] truncate text-neutral-500 sm:inline">
+            <Link
+              href="/dashboard/billing"
+              className="hidden font-medium text-neutral-500 hover:text-neutral-900 sm:inline"
+            >
+              Billing
+            </Link>
+            <span className="hidden max-w-[160px] truncate text-neutral-400 sm:inline">
               {user.email}
             </span>
             <form

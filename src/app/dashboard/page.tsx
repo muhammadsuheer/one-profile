@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { eq, desc, and, inArray, gte, sql } from 'drizzle-orm'
-import { ExternalLink, Pencil, Eye, MousePointerClick } from 'lucide-react'
+import { ExternalLink, Pencil, Eye, MousePointerClick, Sparkles } from 'lucide-react'
 import { requireUser } from '@/lib/auth/session'
 import { db } from '@/db'
 import { sites, blocks, clicks } from '@/db/schema'
@@ -59,6 +59,26 @@ export default async function DashboardPage() {
           {user.plan === 'free' && ' · 1 site included'}
         </p>
       </div>
+
+      {user.plan === 'free' && (
+        <Link
+          href="/dashboard/billing"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-[#F5124A]/20 bg-[#F5124A]/[0.04] p-4 transition-colors hover:bg-[#F5124A]/[0.07]"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F5124A]/10 text-[#F5124A]">
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-neutral-900">Upgrade to Pro</p>
+              <p className="text-xs text-neutral-500">
+                Unlimited sites, all blocks, custom domain, AI &amp; more.
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 text-sm font-medium text-[#F5124A]">Upgrade →</span>
+        </Link>
+      )}
 
       <CreateSiteForm canCreate={user.plan === 'pro' || userSites.length === 0} appHost={appHost} />
 

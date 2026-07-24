@@ -32,6 +32,8 @@ export const users = pgTable('users', {
   name: text('name'),
   image: text('image'),
   plan: text('plan', { enum: ['free', 'pro'] }).notNull().default('free'),
+  creemCustomerId: text('creem_customer_id'),
+  creemSubscriptionId: text('creem_subscription_id'),
   emailVerified: timestamp('email_verified', { withTimezone: true, mode: 'date' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

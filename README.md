@@ -59,6 +59,9 @@ cp .env.example .env.local
 | `RESEND_API_KEY` | optional | Transactional email |
 | `YOUTUBE_API_KEY` | optional | Powers the YouTube feed block refresh |
 | `GROQ_API_KEY` | optional | Enables AI copy generation — bio/tagline + "improve with AI" (free key at console.groq.com) |
+| `CREEM_API_KEY` | optional | Creem billing API key (test keys start with `creem_test_`) |
+| `CREEM_WEBHOOK_SECRET` | optional | Verifies incoming Creem webhooks (HMAC-SHA256) |
+| `CREEM_PRODUCT_ID` | optional | Creem product id for the Pro subscription |
 
 `src/env.ts` validates these with Zod and throws at build/boot if a required one is missing.
 
