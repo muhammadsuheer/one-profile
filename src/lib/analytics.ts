@@ -101,3 +101,17 @@ export async function getTopCountries(siteId: string, since: Date, limit = 5): P
     .limit(limit)
   return rows
 }
+
+export async function getTopReferrers(siteId: string, since: Date, limit = 5): Promise<Bucket[]> {
+  const rows = await db
+    .select({
+      label: sql<string>`coalesce(nullif(${clicks.referrer}, ''), 'Direct')`,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(clicks)
+    .where(and(eq(clicks.siteId, siteId), gte(clicks.createdAt, since)))
+    .groupBy(sql`coalesce(nullif(${clicks.referrer}, ''), 'Direct')`)
+    .orderBy(desc(sql`count(*)`))
+    .limit(limit)
+  return rows
+}

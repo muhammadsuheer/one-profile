@@ -11,6 +11,7 @@ import {
   getBlockClicks,
   getDeviceSplit,
   getTopCountries,
+  getTopReferrers,
   type DailyPoint,
 } from '@/lib/analytics'
 import { BLOCK_REGISTRY } from '@/lib/blocks/registry'
@@ -48,6 +49,15 @@ function buildBuckets(series: DailyPoint[], days: number) {
   return out
 }
 
+function refHost(ref: string): string {
+  if (ref === 'Direct') return 'Direct'
+  try {
+    return new URL(ref).hostname.replace(/^www\./, '')
+  } catch {
+    return ref
+  }
+}
+
 export default async function AnalyticsPage({ params }: { params: Promise<{ siteId: string }> }) {
   const { siteId } = await params
   const user = await getCurrentUser()
@@ -61,12 +71,13 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ site
   if (!site) notFound()
 
   const { since, days } = windowForPlan(user.plan)
-  const [summary, series, blockClicks, devices, countries] = await Promise.all([
+  const [summary, series, blockClicks, devices, countries, referrers] = await Promise.all([
     getSummary(siteId, since),
     getDailySeries(siteId, since),
     getBlockClicks(siteId, since),
     getDeviceSplit(siteId, since),
     getTopCountries(siteId, since),
+    getTopReferrers(siteId, since),
   ])
 
   const buckets = buildBuckets(series, days)
@@ -112,6 +123,11 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ site
             title="Top countries"
             empty="No country data yet."
             items={countries.map((c) => ({ label: c.label, count: c.count }))}
+          />
+          <BarList
+            title="Top referrers"
+            empty="No referrers yet."
+            items={referrers.map((r) => ({ label: refHost(r.label), count: r.count }))}
           />
         </div>
       </div>
