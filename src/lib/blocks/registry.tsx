@@ -15,6 +15,7 @@ import {
   UserPlus,
   Timer,
   Music,
+  CalendarDays,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -35,6 +36,7 @@ import { TestimonialBlock } from '@/components/blocks/render/TestimonialBlock'
 import { ContactBlock } from '@/components/blocks/render/ContactBlock'
 import { CountdownBlock } from '@/components/blocks/render/CountdownBlock'
 import { SpotifyBlock } from '@/components/blocks/render/SpotifyBlock'
+import { CalendlyBlock } from '@/components/blocks/render/CalendlyBlock'
 
 export interface RenderArgs {
   id: string
@@ -268,6 +270,18 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
       data.type === 'spotify' ? <SpotifyBlock id={id} data={data} /> : null,
     summary: (data) => (data.type === 'spotify' ? data.url || 'No link set' : ''),
   },
+  calendly: {
+    type: 'calendly',
+    label: 'Booking',
+    description: 'Let visitors book a time via Calendly',
+    icon: CalendarDays,
+    group: 'basic',
+    proOnly: false,
+    defaultData: { type: 'calendly', title: 'Book a call', url: '' },
+    render: ({ id, data }) =>
+      data.type === 'calendly' ? <CalendlyBlock id={id} data={data} /> : null,
+    summary: (data) => (data.type === 'calendly' ? data.url || 'No link set' : ''),
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -300,6 +314,8 @@ export function blockRendersContent(data: BlockData): boolean {
     case 'countdown':
       return data.targetDate.trim().length > 0
     case 'spotify':
+      return data.url.trim().length > 0
+    case 'calendly':
       return data.url.trim().length > 0
     default:
       return true

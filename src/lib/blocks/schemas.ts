@@ -173,6 +173,12 @@ export const spotifyBlockSchema = z.object({
   url: urlOrEmpty,
 })
 
+export const calendlyBlockSchema = z.object({
+  type: z.literal('calendly'),
+  title: z.string().max(120).optional(),
+  url: urlOrEmpty,
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -189,6 +195,7 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   contactBlockSchema,
   countdownBlockSchema,
   spotifyBlockSchema,
+  calendlyBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -211,6 +218,7 @@ export const BLOCK_SCHEMAS = {
   contact: contactBlockSchema,
   countdown: countdownBlockSchema,
   spotify: spotifyBlockSchema,
+  calendly: calendlyBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */
