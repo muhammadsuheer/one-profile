@@ -8,5 +8,12 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Minimal env so modules importing `@/env` (which validates at import) load.
+    env: {
+      DATABASE_URL: 'postgresql://user:pass@localhost:5432/test',
+      AUTH_SECRET: 'test-auth-secret-value',
+      NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+      CREEM_WEBHOOK_SECRET: 'whsec_test_secret',
+    },
   },
 })
