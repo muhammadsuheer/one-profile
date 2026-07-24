@@ -7,17 +7,32 @@ export const contentType = 'image/png'
 
 type Params = { params: Promise<{ slug: string }> }
 
+const clamp = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s)
+// ImageResponse can only fetch remote http(s) images; data:/blob: URLs hang or throw.
+const isRemote = (u: string) => /^https?:\/\//i.test(u)
+
 export default async function OpengraphImage({ params }: Params) {
   const { slug } = await params
-  const data = await getPublishedSiteBySlug(slug)
 
-  const profileBlock = data?.blocks.find((b) => b.type === 'profile')
-  const profile = profileBlock?.data.type === 'profile' ? profileBlock.data : null
-  const name = profile?.name ?? data?.site.seo?.title ?? slug
-  const tagline = profile?.tagline ?? data?.site.seo?.description ?? ''
-  const avatarUrl = profile?.avatarUrl || ''
-  const accent = data?.site.theme?.accentColor ?? '#F5124A'
-  const badge = profile?.badgeText
+  let name = slug
+  let tagline = ''
+  let avatarUrl = ''
+  let accent = '#F5124A'
+  let badge: string | undefined
+
+  try {
+    const data = await getPublishedSiteBySlug(slug)
+    const profileBlock = data?.blocks.find((b) => b.type === 'profile')
+    const profile = profileBlock?.data.type === 'profile' ? profileBlock.data : null
+    name = clamp((profile?.name ?? data?.site.seo?.title ?? slug).trim() || slug, 40)
+    tagline = clamp((profile?.tagline ?? data?.site.seo?.description ?? '').trim(), 90)
+    const rawAvatar = profile?.avatarUrl || ''
+    avatarUrl = isRemote(rawAvatar) ? rawAvatar : ''
+    accent = data?.site.theme?.accentColor ?? '#F5124A'
+    badge = profile?.badgeText ? clamp(profile.badgeText.trim(), 28) : undefined
+  } catch {
+    // fall through with defaults — OG image must never 500
+  }
 
   return new ImageResponse(
     (
@@ -30,6 +45,7 @@ export default async function OpengraphImage({ params }: Params) {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 28,
+          padding: '60px 80px',
           background: '#0A0A0B',
           fontFamily: 'sans-serif',
         }}
@@ -61,7 +77,18 @@ export default async function OpengraphImage({ params }: Params) {
           </div>
         )}
 
-        <div style={{ fontSize: 64, fontWeight: 700, color: '#FFFFFF' }}>{name}</div>
+        <div
+          style={{
+            fontSize: 64,
+            fontWeight: 700,
+            color: '#FFFFFF',
+            textAlign: 'center',
+            maxWidth: 1040,
+            lineHeight: 1.1,
+          }}
+        >
+          {name}
+        </div>
 
         {badge && (
           <div
@@ -78,7 +105,11 @@ export default async function OpengraphImage({ params }: Params) {
           </div>
         )}
 
-        {tagline && <div style={{ fontSize: 32, color: '#8E8E93' }}>{tagline}</div>}
+        {tagline && (
+          <div style={{ fontSize: 32, color: '#8E8E93', textAlign: 'center', maxWidth: 1000 }}>
+            {tagline}
+          </div>
+        )}
       </div>
     ),
     { ...size },
