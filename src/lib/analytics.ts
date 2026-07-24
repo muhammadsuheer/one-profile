@@ -102,6 +102,28 @@ export async function getTopCountries(siteId: string, since: Date, limit = 5): P
   return rows
 }
 
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+/**
+ * Total events per weekday (UTC) across the window, as a fixed 7-entry list
+ * ordered Mon..Sun so "busiest day" reads naturally. Missing days are 0.
+ */
+export async function getWeekdayActivity(siteId: string, since: Date): Promise<Bucket[]> {
+  const rows = await db
+    .select({
+      dow: sql<number>`extract(dow from ${clicks.createdAt})`.mapWith(Number),
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(clicks)
+    .where(and(eq(clicks.siteId, siteId), gte(clicks.createdAt, since)))
+    .groupBy(sql`extract(dow from ${clicks.createdAt})`)
+
+  const counts = new Map(rows.map((r) => [r.dow, r.count]))
+  // Mon(1)..Sat(6), then Sun(0).
+  const order = [1, 2, 3, 4, 5, 6, 0]
+  return order.map((d) => ({ label: WEEKDAYS[d], count: counts.get(d) ?? 0 }))
+}
+
 export async function getTopReferrers(siteId: string, since: Date, limit = 5): Promise<Bucket[]> {
   const rows = await db
     .select({

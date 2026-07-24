@@ -12,6 +12,7 @@ import {
   getDeviceSplit,
   getTopCountries,
   getTopReferrers,
+  getWeekdayActivity,
   type DailyPoint,
 } from '@/lib/analytics'
 import { BLOCK_REGISTRY } from '@/lib/blocks/registry'
@@ -71,13 +72,14 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ site
   if (!site) notFound()
 
   const { since, days } = windowForPlan(user.plan)
-  const [summary, series, blockClicks, devices, countries, referrers] = await Promise.all([
+  const [summary, series, blockClicks, devices, countries, referrers, weekdays] = await Promise.all([
     getSummary(siteId, since),
     getDailySeries(siteId, since),
     getBlockClicks(siteId, since),
     getDeviceSplit(siteId, since),
     getTopCountries(siteId, since),
     getTopReferrers(siteId, since),
+    getWeekdayActivity(siteId, since),
   ])
 
   const buckets = buildBuckets(series, days)
@@ -141,6 +143,12 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ site
           />
         </div>
       </div>
+
+      <BarList
+        title="Busiest days (UTC)"
+        empty="Not enough data yet."
+        items={weekdays.some((w) => w.count > 0) ? weekdays : []}
+      />
     </div>
   )
 }
