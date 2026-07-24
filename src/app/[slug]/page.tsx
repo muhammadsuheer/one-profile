@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { getPublishedSiteBySlug, getSiteOwnerPlan } from '@/lib/sites'
 import { parseThemeConfig, themeToCssVars } from '@/lib/theme'
 import { renderBlock } from '@/lib/blocks/registry'
+import { buildProfileJsonLd } from '@/lib/jsonld'
+import { env } from '@/env'
 
 // ISR: pages are cached and revalidated at most every 60s (§8).
 export const revalidate = 60
@@ -42,8 +44,18 @@ export default async function PublicPage({ params }: Params) {
   const showBranding = plan === 'free' ? true : !theme.hideBranding
   const style = { ...themeToCssVars(theme), fontFamily: 'var(--font-page)' } as unknown as CSSProperties
 
+  const pageUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/${data.site.slug}`
+  const jsonLd = buildProfileJsonLd(data.blocks, pageUrl)
+
   return (
     <div className="min-h-screen w-full bg-[var(--bg)] text-[var(--text)]" style={style}>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          // Safe: values are our own DB content serialized via JSON.stringify.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        />
+      )}
       <main className="mx-auto flex w-full max-w-[440px] flex-col gap-3 px-4 pb-16 pt-10">
         {data.blocks.map((block) => (
           <div key={block.id}>{renderBlock(block)}</div>
