@@ -9,7 +9,7 @@ export function LinkCardBlock({ id, data }: { id: string; data: BlockDataOf<'lin
       href={`/api/r/${id}`}
       target="_blank"
       rel="noopener noreferrer nofollow"
-      className="group flex items-center gap-3 rounded-[var(--radius-card)] bg-[var(--surface)] p-4 transition-colors hover:bg-[var(--surface-hover)]"
+      className="group flex items-center gap-3 rounded-[var(--radius-btn)] bg-[var(--surface)] p-4 transition-colors hover:bg-[var(--surface-hover)]"
     >
       {isHttpUrl(data.thumbnailUrl) ? (
         <Image
