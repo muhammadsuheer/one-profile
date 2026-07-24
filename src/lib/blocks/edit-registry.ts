@@ -12,6 +12,7 @@ import { ProductEdit } from '@/components/blocks/edit/ProductEdit'
 import { YoutubeFeedEdit } from '@/components/blocks/edit/YoutubeFeedEdit'
 import { FaqEdit } from '@/components/blocks/edit/FaqEdit'
 import { TestimonialEdit } from '@/components/blocks/edit/TestimonialEdit'
+import { ContactEdit } from '@/components/blocks/edit/ContactEdit'
 
 /**
  * Editor forms, kept in a SEPARATE map from the render registry so that
@@ -40,4 +41,5 @@ export const BLOCK_EDITORS: Partial<Record<BlockType, ComponentType<BlockEditPro
   youtubeFeed: YoutubeFeedEdit,
   faq: FaqEdit,
   testimonial: TestimonialEdit,
+  contact: ContactEdit,
 }

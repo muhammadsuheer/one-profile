@@ -12,6 +12,7 @@ import {
   Clapperboard,
   HelpCircle,
   Quote,
+  UserPlus,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -29,6 +30,7 @@ import { ProductBlock } from '@/components/blocks/render/ProductBlock'
 import { YoutubeFeedBlock } from '@/components/blocks/render/YoutubeFeedBlock'
 import { FaqBlock } from '@/components/blocks/render/FaqBlock'
 import { TestimonialBlock } from '@/components/blocks/render/TestimonialBlock'
+import { ContactBlock } from '@/components/blocks/render/ContactBlock'
 
 export interface RenderArgs {
   id: string
@@ -221,6 +223,18 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
       data.type === 'testimonial' ? <TestimonialBlock id={id} data={data} /> : null,
     summary: (data) => (data.type === 'testimonial' ? data.author || 'Testimonial' : ''),
   },
+  contact: {
+    type: 'contact',
+    label: 'Save contact',
+    description: 'A tap-to-download vCard (adds you to their phone)',
+    icon: UserPlus,
+    group: 'basic',
+    proOnly: false,
+    defaultData: { type: 'contact', label: 'Save contact', fullName: '' },
+    render: ({ id, data }) =>
+      data.type === 'contact' ? <ContactBlock id={id} data={data} /> : null,
+    summary: (data) => (data.type === 'contact' ? data.fullName || 'Save contact' : ''),
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -248,6 +262,8 @@ export function blockRendersContent(data: BlockData): boolean {
       return data.items.some((i) => i.question.trim() && i.answer.trim())
     case 'testimonial':
       return data.quote.trim().length > 0
+    case 'contact':
+      return data.fullName.trim().length > 0
     default:
       return true
   }

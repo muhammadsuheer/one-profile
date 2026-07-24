@@ -142,6 +142,16 @@ export const testimonialBlockSchema = z.object({
   avatarUrl: urlOrEmpty.optional(),
 })
 
+export const contactBlockSchema = z.object({
+  type: z.literal('contact'),
+  label: z.string().max(40).default('Save contact'),
+  fullName: z.string().min(1).max(120),
+  phone: z.string().max(40).optional(),
+  email: z.union([z.string().email(), z.literal('')]).optional(),
+  org: z.string().max(120).optional(),
+  website: urlOrEmpty.optional(),
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -155,6 +165,7 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   dividerBlockSchema,
   faqBlockSchema,
   testimonialBlockSchema,
+  contactBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -174,6 +185,7 @@ export const BLOCK_SCHEMAS = {
   divider: dividerBlockSchema,
   faq: faqBlockSchema,
   testimonial: testimonialBlockSchema,
+  contact: contactBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */
