@@ -20,13 +20,18 @@ A production-ready, multi-tenant **link-in-bio SaaS**. Every user signs up, gets
 
 ## Features
 
-- **Public pages** — server-rendered, ISR (revalidate 60s), dynamic OG image, ~zero client JS (only the email form + video embeds).
-- **Block editor** — drag to reorder, toggle visibility, duplicate, delete with undo, autosave, live preview, publish toggle.
-- **10 block types** — profile, social row, link card, email capture, video, gallery, product, YouTube feed, rich text, divider.
-- **Analytics** — views, clicks, CTR, per-block clicks, 30-day chart, devices, countries (all SQL aggregation).
+- **Public pages** — server-rendered, ISR (revalidate 60s), dynamic OG image, Person JSON-LD, canonical/SEO metadata, ~zero client JS (only interactive blocks like the email form, countdown, and media embeds ship JS).
+- **Block editor** — drag to reorder, toggle visibility, per-block visibility scheduling, duplicate, delete with undo, autosave, live preview, publish toggle, searchable block picker.
+- **16 block types** — profile, social row (17 platforms), link card, email capture, video, gallery, product, YouTube feed, rich text, divider, FAQ, testimonial, save-contact (vCard), countdown, Spotify, Calendly booking.
+- **Analytics** — views, clicks, CTR, per-block clicks, 30-day chart, devices, countries, top referrers, busiest weekday (all SQL aggregation); rate-limited ingestion; Pro CSV export.
 - **Audience** — email capture with rate limiting, subscribers list, CSV export.
-- **Theming** — 3 presets (Midnight / Light / Sunset), custom accent, fonts, button styles.
-- **Plans** — Free (1 site, 7-day analytics, branding) vs Pro (unlimited sites, all blocks, custom domain, 30-day analytics, no branding). Enforced server-side.
+- **Theming** — 20 palettes (10 light + 10 dark), custom accent, fonts, button shapes.
+- **Auth** — email/password + Google, password reset by email link, account deletion, `trustHost` for multi-domain.
+- **Billing** — Creem (Merchant of Record) checkout, billing portal, and HMAC-verified webhooks that flip the plan.
+- **AI** (Pro) — Groq-powered tagline generation and "improve with AI", cached + rate-limited.
+- **Custom domains** (Pro) — middleware routes a claimed domain to the owner's published page.
+- **Sharing** — per-site Share dialog with a downloadable QR code.
+- **Plans** — Free (1 site, 7-day analytics, branding) vs Pro (unlimited sites, all blocks, custom domain, 30-day analytics + CSV, AI, no branding). Enforced server-side.
 
 ## Getting started
 
@@ -96,6 +101,12 @@ Open http://localhost:3000.
 | `npm run db:push` | Push schema without a migration file |
 | `npm run db:studio` | Open Drizzle Studio |
 | `npm run db:seed` | Seed demo data |
+| `npm test` | Run the Vitest unit suite |
+| `npm run test:watch` | Vitest in watch mode |
+
+## Testing
+
+Pure, security-sensitive helpers are covered by [Vitest](https://vitest.dev) unit tests (`src/lib/*.test.ts`): the Spotify/Calendly URL parsers (including host-spoofing rejection), social-handle normalization, slug validation + the reserved-slug list, and profile JSON-LD. Run `npm test`.
 
 ## Architecture
 
@@ -114,9 +125,11 @@ The render registry and edit registry are split so the public page ships **no ed
 src/db/schema.ts            Drizzle schema (users, sites, blocks, subscribers, clicks, media, + auth)
 src/lib/blocks/             Block schemas, registries, targets
 src/lib/analytics.ts        SQL GROUP BY aggregations
-src/app/[slug]/             Public page + OG image
-src/app/dashboard/          Editor, design, audience, analytics, settings
-src/app/api/                r (click redirect), pv (view beacon), subscribe, cron, blob (upload), auth
+src/app/[slug]/             Public page + OG image + JSON-LD
+src/app/dashboard/          Editor, design, audience, analytics, settings, account, billing
+src/app/api/                r (click redirect), pv (view beacon), vcard, export (CSV), subscribe, cron, blob, webhooks/creem, auth
+src/middleware.ts           Custom-domain host → site rewrite (edge)
+src/lib/{spotify,calendly,social,slug,jsonld,email,creem,ai}.ts   Pure helpers (unit-tested where applicable)
 ```
 
 ## Deploying to Vercel
@@ -131,5 +144,8 @@ src/app/api/                r (click redirect), pv (view beacon), subscribe, cro
 - Every server action and route handler validates input with Zod and re-checks that the caller owns the site.
 - Outbound links route through `/api/r/[blockId]` with a per-block allow-list (no open redirects).
 - Rich-text HTML is sanitized server-side (DOMPurify) before storage.
-- `/api/subscribe` is rate-limited to 5 requests/IP/minute.
-- Cascade deletes remove a user's sites, blocks, subscribers and clicks.
+- `/api/subscribe` is rate-limited to 5 requests/IP/minute; `/api/pv` and `/api/r` cap logged events at 30/IP/min so bots can't inflate analytics or flood the table.
+- Media-embed blocks (Spotify, Calendly) only accept their provider's host — spoofed hosts are rejected before rendering an iframe.
+- Blob uploads require auth and are limited to images ≤ 4 MB.
+- Password reset uses single-use, 1-hour tokens and is anti-enumeration (identical response whether or not the email exists).
+- Cascade deletes remove a user's sites, blocks, subscribers, clicks and reset tokens.
