@@ -6,9 +6,9 @@ import {
   Mail,
   Globe,
   Video,
-  ArrowRight,
   Check,
 } from 'lucide-react'
+import HeroCollab from '@/components/marketing/HeroCollab'
 
 const FEATURES = [
   { icon: Blocks, title: 'Block-based editor', body: 'Drag, drop and reorder blocks. Links, video, galleries, products and more.' },
@@ -28,77 +28,8 @@ const STEPS = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
-      {/* Nav */}
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <span className="text-lg font-semibold tracking-tight">FolioPage</span>
-          <nav className="flex items-center gap-2 text-sm">
-            <Link href="/login" className="rounded-lg px-3 py-2 font-medium text-white/70 hover:text-white">
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg bg-[#F5124A] px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              Get started
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 lg:grid-cols-2 lg:py-24">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#F5124A]" /> The link in bio, done right
-          </span>
-          <h1 className="mt-5 text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-            One link for everything you do.
-          </h1>
-          <p className="mt-5 max-w-md text-lg text-white/60">
-            Build a beautiful, block-based page for your bio in minutes. Share links, capture emails,
-            embed videos, and see exactly what your audience clicks.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#F5124A] px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              Get started free <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/ava"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-white/80 hover:bg-white/5"
-            >
-              See a live example
-            </Link>
-          </div>
-          <p className="mt-4 text-xs text-white/40">Free plan available · no credit card required</p>
-        </div>
-
-        {/* Phone mockup */}
-        <div className="flex justify-center">
-          <div className="w-[300px] rounded-[40px] bg-black p-3 shadow-[0_30px_80px_-20px_rgba(245,18,74,0.35)]">
-            <div className="overflow-hidden rounded-[30px] bg-[#0A0A0B] px-5 pb-8 pt-9">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#3a2a4d] to-[#14101b] text-2xl font-semibold text-[#cbb8e0] ring-2 ring-white/15">
-                  A
-                </div>
-                <p className="text-lg font-semibold">Ava Nocturne</p>
-                <span className="rounded-full bg-[#F5124A] px-3 py-1 text-xs font-semibold">2.2M Followers</span>
-                <p className="text-xs text-[#8E8E93]">Paranormal Investigator</p>
-              </div>
-              <div className="mt-4 space-y-2.5">
-                {['👻 Latest investigation', '📩 Join the newsletter', '🎧 The podcast'].map((t) => (
-                  <div key={t} className="rounded-2xl bg-[#1A1A1C] px-4 py-3 text-sm font-medium">
-                    {t}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero (collaborative-editing style, animated) */}
+      <HeroCollab />
 
       {/* Features */}
       <section className="border-t border-white/5 bg-white/[0.015]">
