@@ -9,6 +9,14 @@ const HANDLE_BASE: Partial<Record<SocialPlatform, (handle: string) => string>> =
   youtube: (h) => `https://youtube.com/@${h}`,
   linkedin: (h) => `https://linkedin.com/in/${h}`,
   whatsapp: (h) => `https://wa.me/${h.replace(/[^0-9]/g, '')}`,
+  threads: (h) => `https://threads.net/@${h}`,
+  twitch: (h) => `https://twitch.tv/${h}`,
+  discord: (h) => `https://discord.gg/${h}`,
+  github: (h) => `https://github.com/${h}`,
+  spotify: (h) => `https://open.spotify.com/user/${h}`,
+  telegram: (h) => `https://t.me/${h}`,
+  snapchat: (h) => `https://snapchat.com/add/${h}`,
+  pinterest: (h) => `https://pinterest.com/${h}`,
 }
 
 /**
