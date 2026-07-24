@@ -46,3 +46,24 @@ export async function changePassword(_prev: AccountState, formData: FormData): P
   }
   return { ok: true, message: 'Password changed.' }
 }
+
+export async function deleteAccount(_prev: AccountState, formData: FormData): Promise<AccountState> {
+  const user = await getCurrentUser()
+  if (!user) return { error: 'You must be signed in.' }
+
+  const confirm = String(formData.get('confirm') ?? '')
+  // Password users must re-enter their password; OAuth-only users type DELETE.
+  if (user.passwordHash) {
+    if (!verifyPassword(confirm, user.passwordHash)) return { error: 'Password is incorrect.' }
+  } else if (confirm.trim().toUpperCase() !== 'DELETE') {
+    return { error: 'Type DELETE to confirm.' }
+  }
+
+  try {
+    // Cascades to sessions, accounts, reset tokens, and all sites/blocks/clicks.
+    await db.delete(users).where(eq(users.id, user.id))
+  } catch {
+    return { error: 'Could not delete your account. Please try again.' }
+  }
+  return { ok: true, message: 'Account deleted.' }
+}

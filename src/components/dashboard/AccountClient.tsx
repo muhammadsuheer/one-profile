@@ -5,6 +5,7 @@ import { updateName, changePassword, type AccountState } from '@/app/dashboard/a
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { DeleteAccountSection } from '@/components/dashboard/DeleteAccountSection'
 
 function Status({ state }: { state: AccountState }) {
   if (state?.error) return <p className="text-sm text-red-600">{state.error}</p>
@@ -71,6 +72,8 @@ export function AccountClient({
           </p>
         )}
       </div>
+
+      <DeleteAccountSection hasPassword={hasPassword} />
     </div>
   )
 }
