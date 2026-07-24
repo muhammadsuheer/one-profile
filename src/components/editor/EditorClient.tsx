@@ -50,6 +50,18 @@ interface Toast {
 
 const byPosition = (a: EditorBlock, b: EditorBlock) => a.position - b.position
 
+/** Never let a save hang forever — resolve to an error after 15s. */
+function withSaveTimeout<T extends { ok: boolean; error?: string }>(
+  p: Promise<T>,
+): Promise<T | { ok: false; error: string }> {
+  return Promise.race([
+    p,
+    new Promise<{ ok: false; error: string }>((resolve) =>
+      setTimeout(() => resolve({ ok: false, error: 'Save timed out — please try again.' }), 15000),
+    ),
+  ])
+}
+
 export function EditorClient({
   siteId,
   slug,
@@ -116,7 +128,7 @@ export function EditorClient({
     async (fn: () => Promise<{ ok: boolean; error?: string }>) => {
       setSaveStatus('saving')
       try {
-        const res = await fn()
+        const res = await withSaveTimeout(fn())
         setSaveStatus(res.ok ? 'saved' : 'error')
         if (!res.ok && res.error) pushToast(res.error)
       } catch {
@@ -137,9 +149,14 @@ export function EditorClient({
         setSaveStatus('error')
         return
       }
-      const res = await updateBlockData({ siteId, blockId: id, data })
-      setSaveStatus(res.ok ? 'saved' : 'error')
-      if (!res.ok) pushToast(res.error)
+      try {
+        const res = await withSaveTimeout(updateBlockData({ siteId, blockId: id, data }))
+        setSaveStatus(res.ok ? 'saved' : 'error')
+        if (!res.ok && res.error) pushToast(res.error)
+      } catch {
+        setSaveStatus('error')
+        pushToast('Couldn’t save — please try again.')
+      }
     }, 700)
   }
 

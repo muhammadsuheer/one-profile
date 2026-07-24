@@ -46,21 +46,26 @@ export function SettingsClient({
     clearTimeout(timer.current)
     const run = async () => {
       const v = latest.current
-      const res = await saveSettings({
-        siteId: site.id,
-        slug: v.slug,
-        customDomain: v.customDomain,
-        seoTitle: v.seoTitle,
-        seoDescription: v.seoDescription,
-        seoOgImageUrl: v.seoOg,
-        isPublished: v.isPublished,
-      })
-      if (res.ok) {
-        setStatus('saved')
-        setError('')
-      } else {
+      try {
+        const res = await saveSettings({
+          siteId: site.id,
+          slug: v.slug,
+          customDomain: v.customDomain,
+          seoTitle: v.seoTitle,
+          seoDescription: v.seoDescription,
+          seoOgImageUrl: v.seoOg,
+          isPublished: v.isPublished,
+        })
+        if (res.ok) {
+          setStatus('saved')
+          setError('')
+        } else {
+          setStatus('error')
+          setError(res.error)
+        }
+      } catch {
         setStatus('error')
-        setError(res.error)
+        setError('Couldn’t save — please try again.')
       }
     }
     timer.current = setTimeout(run, immediate ? 0 : 700)

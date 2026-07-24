@@ -54,8 +54,12 @@ export function DesignClient({
         setStatus('error')
         return
       }
-      const res = await updateTheme({ siteId, theme: next })
-      setStatus(res.ok ? 'saved' : 'error')
+      try {
+        const res = await updateTheme({ siteId, theme: next })
+        setStatus(res.ok ? 'saved' : 'error')
+      } catch {
+        setStatus('error')
+      }
     }, 500)
   }
 
