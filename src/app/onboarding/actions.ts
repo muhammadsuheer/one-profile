@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/auth/session'
 import { slugSchema, normalizeSlug } from '@/lib/slug'
 import { socialPlatformSchema } from '@/lib/blocks/schemas'
 import { resolveRole, resolveVibe } from '@/lib/onboarding'
+import { aiEnabled, groqComplete } from '@/lib/ai'
 import { isHttpUrl } from '@/lib/utils'
 import type { ThemeConfig } from '@/lib/theme'
 import type { ActionResult } from '@/lib/actions'
@@ -70,6 +71,17 @@ export async function createSiteFromOnboarding(
     .returning()
   if (!site) return { ok: false, error: 'Could not create your page. Please try again.' }
 
+  // AI-enhance the tagline when Groq is configured; otherwise use the rule-based one.
+  let tagline = role?.tagline ?? ''
+  if (aiEnabled()) {
+    const aiTag = await groqComplete(
+      'You write short, punchy taglines for a link-in-bio page. Reply with ONE tagline only, under 9 words, no quotes, no emojis.',
+      `Write a tagline for ${user.name ?? 'this person'}, a ${role?.label ?? 'creator'}.`,
+      40,
+    )
+    if (aiTag) tagline = aiTag
+  }
+
   const blockValues: NewBlock[] = [
     {
       siteId: site.id,
@@ -79,7 +91,7 @@ export async function createSiteFromOnboarding(
         type: 'profile',
         avatarUrl: '',
         name: user.name ?? 'Your name',
-        tagline: role?.tagline ?? '',
+        tagline,
         badgeText: role?.badge ?? '',
         badgeIcon: role?.badgeIcon ?? '',
       },

@@ -4,6 +4,7 @@ import type { BlockData } from '@/lib/blocks/schemas'
 import { Input } from '@/components/ui/input'
 import { EditField } from '@/components/blocks/edit/field'
 import { ImageUploadField } from '@/components/blocks/edit/ImageUploadField'
+import { AiTextButton } from '@/components/ai/AiTextButton'
 
 export function LinkCardEdit({
   data,
@@ -17,11 +18,18 @@ export function LinkCardEdit({
   return (
     <div className="space-y-3">
       <EditField label="Title">
-        <Input
-          value={data.title}
-          maxLength={120}
-          onChange={(e) => onChange({ ...data, title: e.target.value })}
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            value={data.title}
+            maxLength={120}
+            onChange={(e) => onChange({ ...data, title: e.target.value })}
+          />
+          <AiTextButton
+            value={data.title}
+            kind="title"
+            onChange={(text) => onChange({ ...data, title: text })}
+          />
+        </div>
       </EditField>
 
       <EditField label="Subtitle">

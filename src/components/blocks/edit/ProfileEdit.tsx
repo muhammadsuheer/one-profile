@@ -4,6 +4,7 @@ import type { BlockData } from '@/lib/blocks/schemas'
 import { Input } from '@/components/ui/input'
 import { EditField } from '@/components/blocks/edit/field'
 import { ImageUploadField } from '@/components/blocks/edit/ImageUploadField'
+import { AiTextButton } from '@/components/ai/AiTextButton'
 
 export function ProfileEdit({
   data,
@@ -31,13 +32,21 @@ export function ProfileEdit({
         onChange={(url) => onChange({ ...data, avatarUrl: url })}
       />
 
-      <EditField label="Tagline">
-        <Input
-          value={data.tagline ?? ''}
-          maxLength={120}
-          placeholder="Paranormal Investigator"
-          onChange={(e) => onChange({ ...data, tagline: e.target.value })}
-        />
+      <EditField label="Tagline" hint="✨ = write / improve with AI">
+        <div className="flex items-center gap-2">
+          <Input
+            value={data.tagline ?? ''}
+            maxLength={120}
+            placeholder="Paranormal Investigator"
+            onChange={(e) => onChange({ ...data, tagline: e.target.value })}
+          />
+          <AiTextButton
+            value={data.tagline ?? ''}
+            kind="tagline"
+            context={data.name}
+            onChange={(text) => onChange({ ...data, tagline: text })}
+          />
+        </div>
       </EditField>
 
       <div className="grid grid-cols-2 gap-3">

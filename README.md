@@ -58,6 +58,7 @@ cp .env.example .env.local
 | `BLOB_READ_WRITE_TOKEN` | optional | Enables image uploads (Vercel Blob; auto-injected on Vercel when a Blob store is connected) |
 | `RESEND_API_KEY` | optional | Transactional email |
 | `YOUTUBE_API_KEY` | optional | Powers the YouTube feed block refresh |
+| `GROQ_API_KEY` | optional | Enables AI copy generation — bio/tagline + "improve with AI" (free key at console.groq.com) |
 
 `src/env.ts` validates these with Zod and throws at build/boot if a required one is missing.
 
