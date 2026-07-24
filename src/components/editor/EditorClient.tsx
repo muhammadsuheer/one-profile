@@ -23,7 +23,7 @@ import type { ThemeConfig } from '@/lib/theme'
 import { blockDataSchema, type BlockData, type BlockType } from '@/lib/blocks/schemas'
 import { BLOCK_REGISTRY } from '@/lib/blocks/registry'
 import type { Block } from '@/db/schema'
-import type { EditorBlock, SaveStatus } from '@/components/editor/types'
+import { toEditorBlock, type EditorBlock, type SaveStatus } from '@/components/editor/types'
 import { BlockListItem } from '@/components/editor/BlockListItem'
 import { BlockOverlayCard } from '@/components/editor/BlockOverlayCard'
 import { PhonePreview } from '@/components/editor/PhonePreview'
@@ -38,6 +38,7 @@ import {
   duplicateBlock,
   deleteBlock,
   setBlockVisibility,
+  setBlockSchedule,
   setPublished,
 } from '@/app/dashboard/[siteId]/actions'
 
@@ -80,15 +81,7 @@ export function EditorClient({
   initialBlocks: Block[]
 }) {
   const [blocks, setBlocks] = useState<EditorBlock[]>(() =>
-    [...initialBlocks]
-      .map((b) => ({
-        id: b.id,
-        type: b.type,
-        position: b.position,
-        isVisible: b.isVisible,
-        data: b.data,
-      }))
-      .sort(byPosition),
+    [...initialBlocks].map(toEditorBlock).sort(byPosition),
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
@@ -165,13 +158,7 @@ export function EditorClient({
     setSaveStatus('saving')
     const res = await addBlock({ siteId, type })
     if (res.ok) {
-      const nb = res.data
-      setBlocks((bs) =>
-        [
-          ...bs,
-          { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data },
-        ].sort(byPosition),
-      )
+      setBlocks((bs) => [...bs, toEditorBlock(res.data)].sort(byPosition))
       setSelectedId(res.data.id)
       setSaveStatus('saved')
     } else {
@@ -184,13 +171,7 @@ export function EditorClient({
     setSaveStatus('saving')
     const res = await duplicateBlock({ siteId, blockId: id })
     if (res.ok) {
-      const nb = res.data
-      setBlocks((bs) =>
-        [
-          ...bs,
-          { id: nb.id, type: nb.type, position: nb.position, isVisible: nb.isVisible, data: nb.data },
-        ].sort(byPosition),
-      )
+      setBlocks((bs) => [...bs, toEditorBlock(res.data)].sort(byPosition))
       setSaveStatus('saved')
     } else {
       setSaveStatus('error')
@@ -204,6 +185,15 @@ export function EditorClient({
     const isVisible = !block.isVisible
     setBlocks((bs) => bs.map((b) => (b.id === id ? { ...b, isVisible } : b)))
     void runStructural(() => setBlockVisibility({ siteId, blockId: id, isVisible }))
+  }
+
+  const handleSchedule = (id: string, from: string | null, until: string | null) => {
+    setBlocks((bs) =>
+      bs.map((b) => (b.id === id ? { ...b, visibleFrom: from, visibleUntil: until } : b)),
+    )
+    void runStructural(() =>
+      setBlockSchedule({ siteId, blockId: id, visibleFrom: from, visibleUntil: until }),
+    )
   }
 
   const handleDelete = (id: string) => {
@@ -349,6 +339,7 @@ export function EditorClient({
                       onDuplicate={() => handleDuplicate(block.id)}
                       onDelete={() => handleDelete(block.id)}
                       onChange={(data) => handleChange(block.id, data)}
+                      onSchedule={(from, until) => handleSchedule(block.id, from, until)}
                     />
                   ))}
                 </div>

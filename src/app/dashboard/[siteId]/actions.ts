@@ -130,6 +130,36 @@ export async function setBlockVisibility(input: {
   return { ok: true, data: undefined }
 }
 
+const isoOrNull = z.union([z.string().datetime({ offset: true }), z.string().length(0), z.null()])
+
+export async function setBlockSchedule(input: {
+  siteId: string
+  blockId: string
+  visibleFrom: string | null
+  visibleUntil: string | null
+}): Promise<ActionResult<undefined>> {
+  const parsed = idPair
+    .extend({ visibleFrom: isoOrNull, visibleUntil: isoOrNull })
+    .safeParse(input)
+  if (!parsed.success) return { ok: false, error: 'Invalid schedule' }
+
+  const from = parsed.data.visibleFrom ? new Date(parsed.data.visibleFrom) : null
+  const until = parsed.data.visibleUntil ? new Date(parsed.data.visibleUntil) : null
+  if (from && until && from.getTime() > until.getTime()) {
+    return { ok: false, error: 'Start must be before end.' }
+  }
+
+  const ctx = await ownedSite(parsed.data.siteId)
+  if (!ctx) return { ok: false, error: 'Site not found' }
+
+  await db
+    .update(blocks)
+    .set({ visibleFrom: from, visibleUntil: until })
+    .where(and(eq(blocks.id, parsed.data.blockId), eq(blocks.siteId, ctx.site.id)))
+  revalidatePath(`/${ctx.site.slug}`)
+  return { ok: true, data: undefined }
+}
+
 export async function duplicateBlock(input: {
   siteId: string
   blockId: string

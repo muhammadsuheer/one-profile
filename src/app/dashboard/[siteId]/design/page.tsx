@@ -4,6 +4,7 @@ import { db } from '@/db'
 import { sites, blocks } from '@/db/schema'
 import { getCurrentUser } from '@/lib/auth/session'
 import { parseThemeConfig } from '@/lib/theme'
+import { toEditorBlock } from '@/components/editor/types'
 import { DesignClient } from '@/components/design/DesignClient'
 
 export const metadata = { title: 'Design' }
@@ -28,5 +29,12 @@ export default async function DesignPage({ params }: { params: Promise<{ siteId:
 
   const theme = parseThemeConfig(site.theme)
 
-  return <DesignClient siteId={site.id} plan={user.plan} initialTheme={theme} blocks={siteBlocks} />
+  return (
+    <DesignClient
+      siteId={site.id}
+      plan={user.plan}
+      initialTheme={theme}
+      blocks={siteBlocks.map(toEditorBlock)}
+    />
+  )
 }

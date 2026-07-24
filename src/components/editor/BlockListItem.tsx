@@ -2,11 +2,12 @@
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, AlertCircle } from 'lucide-react'
+import { GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, AlertCircle, CalendarClock } from 'lucide-react'
 import { BLOCK_REGISTRY, blockRendersContent } from '@/lib/blocks/registry'
 import { BLOCK_EDITORS } from '@/lib/blocks/edit-registry'
 import type { BlockData, BlockType } from '@/lib/blocks/schemas'
 import type { EditorBlock } from '@/components/editor/types'
+import { BlockSchedule } from '@/components/editor/BlockSchedule'
 import { cn } from '@/lib/utils'
 
 function IconButton({
@@ -44,6 +45,7 @@ export function BlockListItem({
   onDuplicate,
   onDelete,
   onChange,
+  onSchedule,
 }: {
   block: EditorBlock
   selected: boolean
@@ -52,6 +54,7 @@ export function BlockListItem({
   onDuplicate: () => void
   onDelete: () => void
   onChange: (data: BlockData) => void
+  onSchedule: (from: string | null, until: string | null) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
@@ -105,6 +108,14 @@ export function BlockListItem({
                   Hidden
                 </span>
               )}
+              {(block.visibleFrom || block.visibleUntil) && (
+                <span
+                  className="flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-blue-500"
+                  title="This block has a visibility schedule"
+                >
+                  <CalendarClock className="h-3 w-3" /> Scheduled
+                </span>
+              )}
             </span>
             {needsAttention ? (
               <span className="flex items-center gap-1 truncate text-[13px] font-medium text-amber-600">
@@ -135,6 +146,11 @@ export function BlockListItem({
       {selected && Editor && (
         <div className="border-t border-neutral-100 bg-neutral-50/50 p-4">
           <Editor data={block.data} onChange={onChange} />
+          <BlockSchedule
+            visibleFrom={block.visibleFrom}
+            visibleUntil={block.visibleUntil}
+            onChange={onSchedule}
+          />
         </div>
       )}
     </div>

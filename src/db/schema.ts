@@ -135,6 +135,10 @@ export const blocks = pgTable(
     type: text('type').notNull(),
     position: integer('position').notNull(), // gap-based: 1000, 2000, 3000
     isVisible: boolean('is_visible').notNull().default(true),
+    // Optional scheduling window. Null = no bound. A block shows publicly only
+    // when isVisible AND now is within [visibleFrom, visibleUntil].
+    visibleFrom: timestamp('visible_from', { withTimezone: true, mode: 'date' }),
+    visibleUntil: timestamp('visible_until', { withTimezone: true, mode: 'date' }),
     data: jsonb('data').$type<BlockData>().notNull(),
   },
   (t) => ({

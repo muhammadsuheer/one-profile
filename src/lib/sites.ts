@@ -1,4 +1,4 @@
-import { and, eq, asc } from 'drizzle-orm'
+import { and, eq, asc, or, isNull, lte, gte } from 'drizzle-orm'
 import { db } from '@/db'
 import { sites, blocks, users, type Site, type Block } from '@/db/schema'
 
@@ -16,10 +16,19 @@ export async function getPublishedSiteBySlug(slug: string): Promise<PublicSite |
     .limit(1)
   if (!site) return null
 
+  const now = new Date()
   const siteBlocks = await db
     .select()
     .from(blocks)
-    .where(and(eq(blocks.siteId, site.id), eq(blocks.isVisible, true)))
+    .where(
+      and(
+        eq(blocks.siteId, site.id),
+        eq(blocks.isVisible, true),
+        // Within the (optional) scheduling window.
+        or(isNull(blocks.visibleFrom), lte(blocks.visibleFrom, now)),
+        or(isNull(blocks.visibleUntil), gte(blocks.visibleUntil, now)),
+      ),
+    )
     .orderBy(asc(blocks.position))
 
   return { site, blocks: siteBlocks }
