@@ -10,6 +10,8 @@ import { RichTextEdit } from '@/components/blocks/edit/RichTextEdit'
 import { DividerEdit } from '@/components/blocks/edit/DividerEdit'
 import { ProductEdit } from '@/components/blocks/edit/ProductEdit'
 import { YoutubeFeedEdit } from '@/components/blocks/edit/YoutubeFeedEdit'
+import { FaqEdit } from '@/components/blocks/edit/FaqEdit'
+import { TestimonialEdit } from '@/components/blocks/edit/TestimonialEdit'
 
 /**
  * Editor forms, kept in a SEPARATE map from the render registry so that
@@ -36,4 +38,6 @@ export const BLOCK_EDITORS: Partial<Record<BlockType, ComponentType<BlockEditPro
   divider: DividerEdit,
   product: ProductEdit,
   youtubeFeed: YoutubeFeedEdit,
+  faq: FaqEdit,
+  testimonial: TestimonialEdit,
 }

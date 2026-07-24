@@ -121,6 +121,27 @@ export const dividerBlockSchema = z.object({
   label: z.string().max(60).optional(),
 })
 
+export const faqBlockSchema = z.object({
+  type: z.literal('faq'),
+  title: z.string().max(80).optional(),
+  items: z
+    .array(
+      z.object({
+        question: z.string().min(1).max(200),
+        answer: z.string().min(1).max(1000),
+      }),
+    )
+    .max(20),
+})
+
+export const testimonialBlockSchema = z.object({
+  type: z.literal('testimonial'),
+  quote: z.string().min(1).max(500),
+  author: z.string().max(80).optional(),
+  role: z.string().max(80).optional(),
+  avatarUrl: urlOrEmpty.optional(),
+})
+
 export const blockDataSchema = z.discriminatedUnion('type', [
   profileBlockSchema,
   socialRowBlockSchema,
@@ -132,6 +153,8 @@ export const blockDataSchema = z.discriminatedUnion('type', [
   productBlockSchema,
   richTextBlockSchema,
   dividerBlockSchema,
+  faqBlockSchema,
+  testimonialBlockSchema,
 ])
 
 export type BlockData = z.infer<typeof blockDataSchema>
@@ -149,6 +172,8 @@ export const BLOCK_SCHEMAS = {
   product: productBlockSchema,
   richText: richTextBlockSchema,
   divider: dividerBlockSchema,
+  faq: faqBlockSchema,
+  testimonial: testimonialBlockSchema,
 } as const
 
 /** Narrow BlockData to a specific variant by its `type`. */

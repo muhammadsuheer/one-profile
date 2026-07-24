@@ -10,6 +10,8 @@ import {
   Minus,
   ShoppingBag,
   Clapperboard,
+  HelpCircle,
+  Quote,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
@@ -25,6 +27,8 @@ import { RichTextBlock } from '@/components/blocks/render/RichTextBlock'
 import { DividerBlock } from '@/components/blocks/render/DividerBlock'
 import { ProductBlock } from '@/components/blocks/render/ProductBlock'
 import { YoutubeFeedBlock } from '@/components/blocks/render/YoutubeFeedBlock'
+import { FaqBlock } from '@/components/blocks/render/FaqBlock'
+import { TestimonialBlock } from '@/components/blocks/render/TestimonialBlock'
 
 export interface RenderArgs {
   id: string
@@ -193,6 +197,30 @@ export const BLOCK_REGISTRY: Partial<Record<BlockType, BlockRegistryEntry>> = {
     summary: (data) =>
       data.type === 'youtubeFeed' ? data.channelId || 'No channel set' : '',
   },
+  faq: {
+    type: 'faq',
+    label: 'FAQ',
+    description: 'Expandable questions & answers',
+    icon: HelpCircle,
+    group: 'basic',
+    proOnly: false,
+    defaultData: { type: 'faq', items: [] },
+    render: ({ id, data }) => (data.type === 'faq' ? <FaqBlock id={id} data={data} /> : null),
+    summary: (data) =>
+      data.type === 'faq' ? `${data.items.length} question${data.items.length === 1 ? '' : 's'}` : '',
+  },
+  testimonial: {
+    type: 'testimonial',
+    label: 'Testimonial',
+    description: 'A quote with an author',
+    icon: Quote,
+    group: 'basic',
+    proOnly: false,
+    defaultData: { type: 'testimonial', quote: '' },
+    render: ({ id, data }) =>
+      data.type === 'testimonial' ? <TestimonialBlock id={id} data={data} /> : null,
+    summary: (data) => (data.type === 'testimonial' ? data.author || 'Testimonial' : ''),
+  },
 }
 
 /** Ordered list of registered blocks (for the editor's "add block" picker). */
@@ -216,6 +244,10 @@ export function blockRendersContent(data: BlockData): boolean {
       return data.images.some((i) => isHttpUrl(i.url))
     case 'richText':
       return data.html.trim().length > 0
+    case 'faq':
+      return data.items.some((i) => i.question.trim() && i.answer.trim())
+    case 'testimonial':
+      return data.quote.trim().length > 0
     default:
       return true
   }

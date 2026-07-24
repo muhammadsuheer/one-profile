@@ -14,6 +14,7 @@ async function ready(): Promise<AiResult | { userId: string }> {
   const user = await getCurrentUser()
   if (!user) return { ok: false, error: 'Not signed in.' }
   if (!aiEnabled()) return { ok: false, error: NOT_READY }
+  if (user.plan !== 'pro') return { ok: false, error: 'AI copy is a Pro feature — upgrade to unlock.' }
   // Cap spend/abuse per user (also keeps token cost predictable).
   if (!rateLimit(`ai:${user.id}`, AI_PER_MIN, 60_000)) return { ok: false, error: RATE_LIMITED }
   return { userId: user.id }
