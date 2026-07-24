@@ -9,6 +9,7 @@ import { env } from '@/env'
 import { isHttpUrl } from '@/lib/utils'
 import { CreateSiteForm } from '@/components/dashboard/CreateSiteForm'
 import { DeleteSiteButton } from '@/components/dashboard/DeleteSiteButton'
+import { ShareButton } from '@/components/dashboard/ShareButton'
 import { Button } from '@/components/ui/button'
 
 export const metadata = { title: 'Dashboard' }
@@ -156,6 +157,7 @@ export default async function DashboardPage() {
                       </Button>
                     </Link>
                   )}
+                  <ShareButton url={`${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/${s.slug}`} slug={s.slug} />
                   <DeleteSiteButton siteId={s.id} slug={s.slug} />
                 </div>
               </div>
