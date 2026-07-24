@@ -9,7 +9,7 @@ import { slugSchema, normalizeSlug } from '@/lib/slug'
 import { socialPlatformSchema } from '@/lib/blocks/schemas'
 import { resolveRole, resolveVibe } from '@/lib/onboarding'
 import { aiEnabled, groqComplete } from '@/lib/ai'
-import { isHttpUrl } from '@/lib/utils'
+import { normalizeSocialUrl, isSocialLink } from '@/lib/social'
 import type { ThemeConfig } from '@/lib/theme'
 import type { ActionResult } from '@/lib/actions'
 
@@ -98,7 +98,9 @@ export async function createSiteFromOnboarding(
     },
   ]
 
-  const validSocials = parsed.data.socials.filter((s) => isHttpUrl(s.url))
+  const validSocials = parsed.data.socials
+    .map((s) => ({ platform: s.platform, url: normalizeSocialUrl(s.platform, s.url) }))
+    .filter((s) => isSocialLink(s.url))
   if (validSocials.length > 0) {
     blockValues.push({
       siteId: site.id,

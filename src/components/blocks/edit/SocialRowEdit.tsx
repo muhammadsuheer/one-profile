@@ -8,6 +8,7 @@ import {
 } from '@/lib/blocks/schemas'
 import { Input } from '@/components/ui/input'
 import { PlatformPicker } from '@/components/blocks/edit/PlatformPicker'
+import { normalizeSocialUrl } from '@/lib/social'
 
 const PLATFORMS = socialPlatformSchema.options
 
@@ -45,8 +46,12 @@ export function SocialRowEdit({
           <PlatformPicker value={item.platform} onChange={(platform) => setItem(i, { platform })} />
           <Input
             value={item.url}
-            placeholder="https://…"
+            placeholder="@username or link"
             onChange={(e) => setItem(i, { url: e.target.value })}
+            onBlur={(e) => {
+              const normalized = normalizeSocialUrl(item.platform, e.target.value)
+              if (normalized !== item.url) setItem(i, { url: normalized })
+            }}
           />
           <button
             type="button"

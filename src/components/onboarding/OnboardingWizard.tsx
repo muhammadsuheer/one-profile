@@ -23,6 +23,7 @@ import { ONBOARDING_ROLES, ONBOARDING_VIBES } from '@/lib/onboarding'
 import { createSiteFromOnboarding } from '@/app/onboarding/actions'
 import type { SocialPlatform } from '@/lib/blocks/schemas'
 import { PlatformPicker } from '@/components/blocks/edit/PlatformPicker'
+import { normalizeSocialUrl } from '@/lib/social'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -210,12 +211,18 @@ export function OnboardingWizard({
                   />
                   <Input
                     value={s.url}
-                    placeholder="https://…"
+                    placeholder="@username or link"
                     onChange={(e) =>
                       setSocials((list) =>
                         list.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)),
                       )
                     }
+                    onBlur={(e) => {
+                      const normalized = normalizeSocialUrl(s.platform, e.target.value)
+                      setSocials((list) =>
+                        list.map((x, j) => (j === i ? { ...x, url: normalized } : x)),
+                      )
+                    }}
                   />
                   <button
                     type="button"

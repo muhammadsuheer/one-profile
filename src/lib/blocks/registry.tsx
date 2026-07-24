@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type { BlockType, BlockData } from '@/lib/blocks/schemas'
 import { isHttpUrl } from '@/lib/utils'
+import { isSocialLink } from '@/lib/social'
 import { ProfileBlock } from '@/components/blocks/render/ProfileBlock'
 import { SocialRowBlock } from '@/components/blocks/render/SocialRowBlock'
 import { LinkCardBlock } from '@/components/blocks/render/LinkCardBlock'
@@ -210,7 +211,7 @@ export function renderBlock(block: { id: string; type: string; data: BlockData }
 export function blockRendersContent(data: BlockData): boolean {
   switch (data.type) {
     case 'socialRow':
-      return data.items.some((i) => isHttpUrl(i.url))
+      return data.items.some((i) => isSocialLink(i.url))
     case 'gallery':
       return data.images.some((i) => isHttpUrl(i.url))
     case 'richText':
