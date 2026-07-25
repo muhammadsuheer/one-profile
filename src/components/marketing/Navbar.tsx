@@ -24,9 +24,22 @@ const NAV = [
  * which needed explicit layering and slid the row off the top of the viewport
  * when it got that wrong.
  *
+ * The transform is an inline style rather than Tailwind's `-translate-y-full`
+ * plus `transition-transform`, and that's deliberate: in Tailwind v4 the
+ * translate utilities compile to `translate: var(--tw-translate-x)
+ * var(--tw-translate-y)`, and those custom properties are untyped, so they flip
+ * discretely instead of interpolating — the header snapped in and out with no
+ * animation at all. A literal transform value has no such indirection.
+ *
+ * `SCROLL_DELTA` matters too. Reacting to every scroll event meant a stray pixel
+ * of trackpad momentum in the opposite direction flipped the state, so the header
+ * flickered while scrolling.
+ *
  * Hiding is suppressed while the mobile menu is open, so an open menu can't be
  * dragged off-screen by a scroll.
  */
+const SCROLL_DELTA = 8 // px of movement before direction is believed
+const HIDE_AFTER = 96 // don't hide while still near the top of the page
 export default function Navbar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
@@ -41,9 +54,18 @@ export default function Navbar() {
     lastY.current = window.scrollY
     const onScroll = () => {
       const y = window.scrollY
-      const goingDown = y > lastY.current
-      const pastThreshold = y > 96 // don't hide while still near the top
-      setHidden(goingDown && pastThreshold)
+      const delta = y - lastY.current
+
+      // Always show again near the top, whichever way we're moving.
+      if (y <= HIDE_AFTER) {
+        setHidden(false)
+        lastY.current = y
+        return
+      }
+      // Ignore small movements so momentum jitter can't flip the state.
+      if (Math.abs(delta) < SCROLL_DELTA) return
+
+      setHidden(delta > 0)
       lastY.current = y
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -54,9 +76,12 @@ export default function Navbar() {
 
   return (
     <div
-      className={`sticky top-0 z-50 transition-transform duration-300 ease-out ${
-        hidden && !open ? '-translate-y-full' : 'translate-y-0'
-      }`}
+      className="sticky top-0 z-50"
+      style={{
+        transform: hidden && !open ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 340ms cubic-bezier(0.22, 1, 0.36, 1)',
+        willChange: 'transform',
+      }}
     >
       <AnnouncementBar />
 
