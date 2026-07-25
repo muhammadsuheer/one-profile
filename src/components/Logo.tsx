@@ -2,103 +2,62 @@
  * The FolioPage logo, in one place.
  *
  * Every surface that shows the brand renders this — navbar, footer, auth panel,
- * onboarding, dashboard. Previously each of those hand-rolled a pink rounded
- * square with the letter F plus a text span, so the brand existed in eight
- * places and none of them was the real logo.
+ * onboarding, dashboard. Each of those used to hand-roll a pink rounded square
+ * with the letter F next to a text span, so the brand existed in six places and
+ * none of them was the real logo.
  *
- * The artwork lives in `public/brand/` and is referenced by path rather than
- * imported, so a missing file can't break the build. `BRAND_ASSETS_READY` is the
- * single switch: while it's false every surface falls back to a wordmark set in
- * our own type, styled after the real logo (solid "Folio", outlined "page"), so
- * nothing renders broken. Drop the files in and flip it to true — that's the
- * whole integration.
+ * ── The logo's colours are never altered. ──
  *
- *   public/brand/logo.svg   full lockup: mark + wordmark, transparent
- *   public/brand/mark.svg   mark only, transparent — icons, OG, email
+ * Not tinted, not faded, not recoloured per surface, not swapped for dark mode.
+ * The artwork is rendered through an `<img>` precisely for that: an external
+ * image referenced this way is sealed off from the page's CSS, so `currentColor`,
+ * `fill`, colour inheritance and `text-*` classes cannot reach inside it.
+ * Inlining the SVG or passing `opacity` / `filter` / `mix-blend-mode` through
+ * `className` would break that — don't. `className` is for layout only.
  *
- * SVG is worth insisting on: the same file then serves a 16px favicon and a
- * 1200px OG image with no separate exports, and it stays crisp on any display.
+ * ── Which variant goes where ──
+ *
+ * The wordmark sets "page" as a near-white outline (#fcfbfc), so the lockup is
+ * built for dark surfaces and "page" all but disappears on a light one. The fix
+ * is to pick the right variant, not to recolour anything:
+ *
+ *   variant="lockup"  dark surfaces — marketing navbar, footer, auth brand panel
+ *   variant="mark"    light surfaces — dashboard, onboarding — plus favicons,
+ *                     avatars, and anywhere too tight for a wordmark
+ *
+ * Dimensions are hard-coded from the trimmed artwork so the browser reserves the
+ * right box and the logo can't shift the layout as it loads. The source export
+ * was 666×375 with the logo occupying only 392×90 of it — two thirds empty
+ * padding — which would have rendered the logo at a quarter of its intended size
+ * inside any height we set. `public/brand/*` holds the trimmed versions; the
+ * original is kept at `public/logo.webp`.
  */
-const BRAND_ASSETS_READY = false
 
-const ACCENT = '#F5124A'
+/** Intrinsic size of the trimmed artwork. */
+const LOCKUP = { width: 392, height: 90 }
+const MARK = { width: 84, height: 90 }
 
 export type LogoProps = {
-  /** Height of the mark in px. The lockup scales from this. */
+  /** Rendered height in px. Width follows the artwork's aspect ratio. */
   size?: number
-  /** Mark only — for favicons, avatars, tight spaces. */
-  markOnly?: boolean
+  variant?: 'lockup' | 'mark'
   className?: string
 }
 
-export default function Logo({ size = 26, markOnly = false, className = '' }: LogoProps) {
-  if (BRAND_ASSETS_READY) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={markOnly ? '/brand/mark.svg' : '/brand/logo.svg'}
-        alt="FolioPage"
-        height={size}
-        style={{ height: size, width: 'auto' }}
-        className={className}
-      />
-    )
-  }
-
-  if (markOnly) return <FallbackMark size={size} className={className} />
+export default function Logo({ size = 26, variant = 'lockup', className = '' }: LogoProps) {
+  const art = variant === 'mark' ? MARK : LOCKUP
+  const src = variant === 'mark' ? '/brand/mark.webp' : '/brand/logo.webp'
+  const width = Math.round((size * art.width) / art.height)
 
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
-      <FallbackMark size={size} />
-      <Wordmark size={size} />
-    </span>
-  )
-}
-
-/**
- * Interim mark: an F built from three blocks — a stem and two arms, which is
- * both the initial and a stack of link blocks. Solid shapes rather than strokes,
- * so it survives being rendered at 16px.
- */
-function FallbackMark({ size, className = '' }: { size: number; className?: string }) {
-  return (
-    <svg
-      width={size}
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="FolioPage"
+      width={width}
       height={size}
-      viewBox="0 0 24 24"
       className={className}
-      role="img"
-      aria-label="FolioPage"
-    >
-      <rect x="5" y="4" width="4.4" height="16" rx="2.2" fill={ACCENT} />
-      <rect x="11.1" y="4" width="8" height="4.4" rx="2.2" fill={ACCENT} />
-      <rect x="11.1" y="10.6" width="5.4" height="4.4" rx="2.2" fill={ACCENT} opacity="0.5" />
-    </svg>
-  )
-}
-
-/**
- * Interim wordmark, echoing the real logo's split treatment: "Folio" solid,
- * "page" outlined. Set in our own type, so it's crisp and swaps out cleanly once
- * the artwork lands.
- */
-function Wordmark({ size }: { size: number }) {
-  const fontSize = size * 0.72
-  return (
-    <span
-      className="font-semibold tracking-[-0.02em]"
-      style={{ fontSize, lineHeight: 1 }}
-      aria-hidden
-    >
-      <span style={{ color: ACCENT }}>Folio</span>
-      <span
-        style={{
-          color: 'transparent',
-          WebkitTextStroke: `1.1px ${ACCENT}`,
-        }}
-      >
-        page
-      </span>
-    </span>
+      style={{ height: size, width }}
+    />
   )
 }

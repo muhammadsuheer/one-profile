@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Link href="/dashboard" className="flex items-center">
-            <Logo size={24} />
+            <Logo size={26} variant="mark" />
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link

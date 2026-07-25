@@ -113,7 +113,7 @@ export function OnboardingWizard({
     <div className="relative flex min-h-screen flex-col bg-neutral-50">
       {/* header */}
       <header className="flex items-center justify-between px-5 py-4 sm:px-8">
-        <Logo size={26} />
+        <Logo size={28} variant="mark" />
         <Link href="/dashboard" className="text-sm font-medium text-neutral-400 hover:text-neutral-700">
           Skip
         </Link>

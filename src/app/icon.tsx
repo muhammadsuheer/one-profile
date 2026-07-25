@@ -1,40 +1,31 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { ImageResponse } from 'next/og'
 
 export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
 /**
- * Favicon: the mark on the brand accent.
+ * Favicon: the real mark, not an approximation of it.
  *
- * This shipped a letter "O" long after the rebrand from OnePage — the tab icon
- * was the only surface still carrying the old name. Drawn with rects rather than
- * text so it stays legible at 16px and doesn't depend on a font being available
- * inside ImageResponse.
+ * This shipped a letter "O" long after the rebrand from OnePage — the browser tab
+ * was the last surface still carrying the old name. It briefly carried a mark
+ * drawn by hand in rects, which was closer but still wasn't the logo; it now
+ * renders `public/brand/mark.png` so the tab icon and the in-app logo can't drift
+ * apart.
  *
- * Once `public/brand/mark.svg` lands, this should render that instead so the
- * favicon and the in-app logo can't drift apart.
+ * Read off disk and inlined as a data URI because Satori (what ImageResponse runs
+ * on) needs the bytes rather than a relative path — a path like `/brand/mark.png`
+ * has no origin to resolve against here. PNG rather than the WebP the rest of the
+ * app uses, since Satori's image support doesn't cover WebP.
+ *
+ * The tile is white. The mark is crimson over a dark maroon, and the maroon goes
+ * muddy against our near-black surface at 16px — the light tile keeps both halves
+ * legible without touching the artwork's colours.
  */
 export default function Icon() {
-  const bar = (
-    left: number,
-    top: number,
-    width: number,
-    height: number,
-    opacity = 1,
-  ) => (
-    <div
-      style={{
-        position: 'absolute',
-        left,
-        top,
-        width,
-        height,
-        borderRadius: height / 2,
-        background: '#fff',
-        opacity,
-      }}
-    />
-  )
+  const mark = readFileSync(join(process.cwd(), 'public/brand/mark.png'))
+  const src = `data:image/png;base64,${mark.toString('base64')}`
 
   return new ImageResponse(
     (
@@ -42,18 +33,15 @@ export default function Icon() {
         style={{
           width: '100%',
           height: '100%',
-          position: 'relative',
           display: 'flex',
-          background: '#F5124A',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#ffffff',
           borderRadius: 7,
         }}
       >
-        {/* stem */}
-        {bar(7, 6, 6, 21)}
-        {/* upper arm */}
-        {bar(15, 6, 11, 6)}
-        {/* lower arm */}
-        {bar(15, 15, 7, 6, 0.62)}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} width={19} height={20} alt="" />
       </div>
     ),
     { ...size },
