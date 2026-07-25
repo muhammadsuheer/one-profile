@@ -18,6 +18,12 @@ const NAV = [
  * top; the nav row below it hides on scroll-down and reappears on scroll-up
  * (a standard "auto-hide" header) so it never eats screen space while reading,
  * but is always one upward scroll away.
+ *
+ * The two rows are explicitly layered, and that matters: the nav row hides by
+ * translating up by its own height, so it has to pass *behind* the announcement
+ * strip. Without the z-index it painted on top instead (it comes later in the
+ * DOM), and hiding it slid the whole row over the strip and off the top of the
+ * viewport — the nav appeared sliced in half with the announcement gone.
  */
 export default function Navbar() {
   const pathname = usePathname()
@@ -54,7 +60,7 @@ export default function Navbar() {
           CTA stay the loudest thing on screen. */}
       <Link
         href="/blog"
-        className="relative block overflow-hidden bg-gradient-to-r from-[#1b0a11] via-[#4a1023] to-[#1b0a11] text-center text-white"
+        className="relative z-20 block overflow-hidden bg-gradient-to-r from-[#1b0a11] via-[#4a1023] to-[#1b0a11] text-center text-white"
       >
         <div className="relative mx-auto flex max-w-7xl items-center justify-center gap-2.5 px-5 py-2.5 text-sm text-white/85">
           <span className="hidden rounded-full bg-[#F5124A] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white sm:inline">
@@ -67,7 +73,7 @@ export default function Navbar() {
 
       {/* Nav bar — auto-hides on scroll-down, reappears on scroll-up */}
       <header
-        className={`border-b border-white/10 bg-[#0A0A0B] text-white transition-transform duration-300 ease-out ${
+        className={`relative z-10 border-b border-white/10 bg-[#0A0A0B] text-white transition-transform duration-300 ease-out ${
           navHidden ? '-translate-y-full' : 'translate-y-0'
         }`}
       >

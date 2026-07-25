@@ -33,17 +33,26 @@ export type Collaborator = {
 }
 
 /**
- * The collaborators floating in the side margins. A fourth — Aria, the one
+ * The collaborators floating around the copy. A fourth — Aria, the one
  * "editing" the selected phrase — is rendered on the selection box itself by
  * SelectedPhrase, so four people are on screen in total.
  *
- * Vertical placement is bounded: the corner cards occupy roughly the bottom
- * 26% of the hero at lg, and a cursor is ~46px tall plus up to `radius` of
- * drift, so these all rest above ~60% to stay clear of them. Horizontally they
- * sit outside the centred max-w-3xl headline column.
+ * Each one is tucked just outside the line it sits beside, not pushed out to
+ * the frame edge: hugging the text is what reads as "these people are working
+ * on this", and it leaves the outer margins genuinely empty, which is where the
+ * composition gets its air. Positions are therefore tied to specific lines —
+ *
+ *   Kai   beside the end of headline line 1 (which runs to ~75%)
+ *   Devon beside the start of headline line 2 (the shorter line, from ~30%)
+ *   Zoe   beside the sub-heading (max-w-lg, from ~30%)
+ *
+ * Two constraints to preserve when moving these: a pill is ~165px wide, so it
+ * must not reach into the line it sits next to; and the corner cards occupy
+ * roughly the bottom quarter of the hero at lg, so every cursor rests above
+ * ~60% (a cursor is ~46px tall plus up to `radius` of drift).
  */
 export const COLLABORATORS: Collaborator[] = [
-  { name: 'Devon', role: 'Creator', color: '#a78bfa', top: '24%', left: '3%', facing: 'right', fromX: -64, fromY: -22, delay: 300, radius: 18, period: 7600 },
-  { name: 'Zoe', role: 'Coach', color: '#fbbf24', top: '52%', left: '7%', facing: 'right', fromX: -54, fromY: 36, delay: 460, radius: 13, period: 8400 },
-  { name: 'Kai', role: 'Founder', color: '#34d399', top: '38%', left: '79%', facing: 'left', fromX: 58, fromY: 30, delay: 600, radius: 15, period: 10000 },
+  { name: 'Kai', role: 'Founder', color: '#34d399', top: '22%', left: '77%', facing: 'left', fromX: 58, fromY: -28, delay: 300, radius: 16, period: 10000 },
+  { name: 'Devon', role: 'Creator', color: '#a78bfa', top: '34%', left: '15%', facing: 'right', fromX: -60, fromY: -20, delay: 460, radius: 16, period: 7600 },
+  { name: 'Zoe', role: 'Coach', color: '#fbbf24', top: '54%', left: '16%', facing: 'right', fromX: -52, fromY: 34, delay: 620, radius: 13, period: 8400 },
 ]
