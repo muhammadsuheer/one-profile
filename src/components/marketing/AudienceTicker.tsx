@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   motion,
   useAnimationFrame,
@@ -30,22 +30,32 @@ import {
 /**
  * The "who it's for" row, as a continuous ticker.
  *
- * Driven by `useAnimationFrame` advancing a motion value that's wrapped back
- * into range, rather than by an animation that plays to an end and restarts.
- * That distinction is the whole point: a keyframed or `animate`-to-`-100%`
- * version has a defined end, so it depends on the reset landing exactly where
- * the previous cycle began — which is where the earlier CSS attempts kept coming
- * apart. Here the position simply wraps within [-copyWidth, 0], so there is no
- * cycle boundary to get wrong and no percentage resolving against intrinsic
- * parent sizing.
+ * Position is advanced in `useAnimationFrame` and wrapped into
+ * [-copyWidth, 0], rather than animated to an end and restarted. That's the
+ * point: a version with a defined cycle depends on the reset landing exactly
+ * where the previous one began, which is where the earlier CSS attempts came
+ * apart. Wrapping has no cycle boundary to get wrong.
  *
- * The wrap distance is one copy's measured width (including its trailing
- * padding, so the spacing across the seam matches the spacing everywhere else).
- * Three copies are rendered so the row still covers very wide viewports at the
- * moment the position wraps.
+ * The wrap distance is one copy's measured width — measured, because it depends
+ * on the font and the viewport, and re-measured on resize. It's read off the
+ * track's first child rather than by handing a ref down into the list component.
  *
- * Scroll velocity feeds into the speed, and reverses direction on scroll-up.
- * That's what stops it reading as a detached loop — it responds to the page.
+ * The measurement lives in a ref, not in state, and that's the important part.
+ * Both the transform and the frame callback are held by Motion, so if they closed
+ * over a `copyWidth` from state they'd keep whatever it was on the first render —
+ * zero, before the DOM had been measured. The transform would then return the
+ * same value forever while the frame loop cheerfully advanced `baseX`: movement
+ * computed, nothing on screen, and nothing in the console to say why. Reading
+ * through a ref means both always see the current width.
+ *
+ * Three copies are rendered so a wide viewport is still covered at the moment the
+ * position wraps.
+ *
+ * Scroll velocity feeds the speed and reverses direction on scroll-up, so the row
+ * responds to the page instead of looping in isolation. `useReducedMotion` is
+ * read here rather than left to MotionConfig, because this is a hand-driven loop
+ * that Motion doesn't know about — but it's only used inside the frame callback,
+ * never to change what renders, so it can't cause a hydration mismatch.
  *
  * Styling is deliberately near-silent: monochrome, no pill chrome, low opacity.
  * This is supporting material; the accent belongs to the selected phrase and the
@@ -73,25 +83,34 @@ const BASE_SPEED = 46
 
 export default function AudienceTicker() {
   const reduceMotion = useReducedMotion()
-  const copyRef = useRef<HTMLUListElement | null>(null)
-  const [copyWidth, setCopyWidth] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
 
-  // One copy's width is the wrap distance. Measured rather than assumed, and
-  // re-measured on resize, because it changes with the font and the viewport.
+  // Read by Motion-held callbacks, so these must be refs — see the note above.
+  const copyWidth = useRef(0)
+  const paused = useRef(false)
+  const stopped = useRef(false)
+  stopped.current = !!reduceMotion
+
   useEffect(() => {
-    const el = copyRef.current
-    if (!el) return
-    const measure = () => setCopyWidth(el.getBoundingClientRect().width)
+    const track = trackRef.current
+    if (!track) return
+
+    const measure = () => {
+      const firstCopy = track.firstElementChild
+      if (firstCopy) copyWidth.current = firstCopy.getBoundingClientRect().width
+    }
     measure()
+
     const observer = new ResizeObserver(measure)
-    observer.observe(el)
+    observer.observe(track)
     return () => observer.disconnect()
   }, [])
 
   const baseX = useMotionValue(0)
-  const x = useTransform(baseX, (value) =>
-    copyWidth ? `${wrap(-copyWidth, 0, value)}px` : '0px',
-  )
+  const x = useTransform(baseX, (value) => {
+    const width = copyWidth.current
+    return width ? wrap(-width, 0, value) : 0
+  })
 
   const { scrollY } = useScroll()
   const scrollVelocity = useVelocity(scrollY)
@@ -100,7 +119,7 @@ export default function AudienceTicker() {
 
   const direction = useRef(-1)
   useAnimationFrame((_, delta) => {
-    if (reduceMotion || !copyWidth) return
+    if (stopped.current || paused.current || !copyWidth.current) return
 
     let moveBy = direction.current * BASE_SPEED * (delta / 1000)
 
@@ -119,9 +138,15 @@ export default function AudienceTicker() {
         maskImage: 'linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)',
         WebkitMaskImage: 'linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)',
       }}
+      onMouseEnter={() => {
+        paused.current = true
+      }}
+      onMouseLeave={() => {
+        paused.current = false
+      }}
     >
-      <motion.div className="flex" style={{ x }}>
-        <AudienceList ref={copyRef} />
+      <motion.div ref={trackRef} className="flex" style={{ x }}>
+        <AudienceList />
         <AudienceList duplicate />
         <AudienceList duplicate />
       </motion.div>
@@ -129,21 +154,11 @@ export default function AudienceTicker() {
   )
 }
 
-function AudienceList({
-  ref,
-  duplicate,
-}: {
-  ref?: React.Ref<HTMLUListElement>
-  duplicate?: boolean
-}) {
+function AudienceList({ duplicate }: { duplicate?: boolean }) {
   return (
     // The trailing padding matches the gap, so the spacing where one copy meets
     // the next is the same as the spacing within a copy.
-    <ul
-      ref={ref}
-      className="flex shrink-0 items-center gap-12 pr-12"
-      aria-hidden={duplicate || undefined}
-    >
+    <ul className="flex shrink-0 items-center gap-12 pr-12" aria-hidden={duplicate || undefined}>
       {AUDIENCES.map(({ icon: Icon, label }) => (
         <li
           key={label}
