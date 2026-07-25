@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import {
   Music,
   Mic,
@@ -71,6 +71,22 @@ export default function AudienceTicker() {
   const trackRef = useRef<HTMLDivElement>(null)
   const [copyWidth, setCopyWidth] = useState(0)
 
+  /*
+   * A continuously scrolling row is the textbook thing to stop for someone who
+   * has asked for reduced motion, and MotionConfig already suppresses the
+   * animation for them. But suppressing it makes Motion apply the *target*
+   * immediately, which parks the track a full copy-width to the left — the row
+   * renders mid-list with the first item sliced off, looking broken rather than
+   * intentionally still. Skipping the animation outright leaves it at rest.
+   *
+   * Reading the preference is safe here despite it differing between server and
+   * client: `copyWidth` is 0 until an effect measures it, so `animate` is
+   * undefined on both the server and the first client render either way, and
+   * there's nothing for hydration to disagree about.
+   */
+  const reduceMotion = useReducedMotion()
+  const animating = copyWidth > 0 && !reduceMotion
+
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
@@ -102,7 +118,7 @@ export default function AudienceTicker() {
         // w-max and shrink-0 keep the track sized by its content; as a flex item
         // it would otherwise be free to shrink toward the container's width.
         className="flex w-max shrink-0"
-        animate={copyWidth ? { x: [0, -copyWidth] } : undefined}
+        animate={animating ? { x: [0, -copyWidth] } : undefined}
         transition={{
           duration: copyWidth / SPEED,
           ease: 'linear',
