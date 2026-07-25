@@ -42,7 +42,7 @@ export default function Hero() {
     >
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[500px] max-w-7xl flex-col items-center justify-center px-5 py-14 lg:min-h-[580px] lg:py-16">
+      <section className="relative mx-auto flex min-h-[460px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[540px] lg:py-14">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">

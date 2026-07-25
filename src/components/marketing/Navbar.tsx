@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
+import AnnouncementBar from './AnnouncementBar'
 
 const NAV = [
   { href: '/', label: 'Home' },
@@ -52,24 +53,8 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-0 z-50">
-      {/* Announcement bar — always pinned, never hides.
-          Deliberately a deep wine rather than full-strength brand pink: the hero
-          below already spends that accent on the selected phrase and the primary
-          CTA, and a third saturated pink band at the top of the page made all
-          three fight each other. This keeps the colour identity while letting the
-          CTA stay the loudest thing on screen. */}
-      <Link
-        href="/blog"
-        className="relative z-20 block overflow-hidden bg-gradient-to-r from-[#1b0a11] via-[#4a1023] to-[#1b0a11] text-center text-white"
-      >
-        <div className="relative mx-auto flex max-w-7xl items-center justify-center gap-2.5 px-5 py-2.5 text-sm text-white/85">
-          <span className="hidden rounded-full bg-[#F5124A] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white sm:inline">
-            New
-          </span>
-          Connect your own custom domain in one click
-          <ArrowRight className="h-3.5 w-3.5" />
-        </div>
-      </Link>
+      {/* Always pinned, never hides — see the layering note above. */}
+      <AnnouncementBar />
 
       {/* Nav bar — auto-hides on scroll-down, reappears on scroll-up */}
       <header

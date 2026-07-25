@@ -7,10 +7,25 @@ import {
   Globe,
   Video,
   ArrowRight,
+  Music,
+  Mic,
+  HeartHandshake,
+  Rocket,
+  Brush,
+  PenLine,
 } from 'lucide-react'
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
 import Hero from '@/components/marketing/hero'
+
+const AUDIENCES = [
+  { icon: Music, label: 'Musicians' },
+  { icon: Mic, label: 'Podcasters' },
+  { icon: HeartHandshake, label: 'Coaches' },
+  { icon: Rocket, label: 'Founders' },
+  { icon: Brush, label: 'Artists' },
+  { icon: PenLine, label: 'Writers' },
+]
 
 const FEATURES = [
   { icon: Blocks, title: 'Block-based editor', body: 'Drag, drop and reorder blocks. Links, video, galleries, products and more.' },
@@ -33,15 +48,26 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      {/* Social proof strip */}
-      <section className="border-b border-white/10 bg-[#08080A]">
-        <div className="mx-auto max-w-7xl px-5 py-10">
-          <p className="text-center text-xs font-medium uppercase tracking-wider text-white/35">
-            Loved by creators, coaches, founders and musicians
+      {/* Who it's for.
+          No background of its own, so it reads as a quiet continuation of the
+          hero rather than a second slab. The eyebrow used to name the same four
+          audiences the row below listed, which was pure repetition — it now sets
+          up the row instead. Framed as who the product is built for rather than
+          who "loves" it: we can't stand behind a testimonial claim. */}
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-5 py-14">
+          <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
+            Built for people with something to share
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-white/40">
-            {['Musicians', 'Podcasters', 'Coaches', 'Founders', 'Artists', 'Writers'].map((n) => (
-              <span key={n} className="text-sm font-semibold tracking-tight">{n}</span>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-3">
+            {AUDIENCES.map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:border-white/15 hover:text-white/85"
+              >
+                <Icon className="h-4 w-4 text-[#F5124A]/70" />
+                {label}
+              </span>
             ))}
           </div>
         </div>
