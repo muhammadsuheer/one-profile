@@ -1,3 +1,6 @@
+'use client'
+
+import { motion, useReducedMotion } from 'motion/react'
 import {
   Music,
   Mic,
@@ -16,29 +19,21 @@ import {
 /**
  * The "who it's for" row, as a continuously scrolling marquee.
  *
- * Two identical copies of the list sit side by side, and *each* animates by
- * -100% of its own width (see `.fp-marquee-group` in globals.css). When the
- * first has travelled its own width the second occupies where the first began,
- * so the reset is invisible. An earlier version slid a shared track by -50%
- * instead; that's equivalent on paper but makes the percentage depend on the
- * parent resolving `width: max-content` first, and it didn't reliably run.
+ * Two identical copies sit side by side and each animates by -100% of its own
+ * width. When the first has travelled its own width the second occupies where
+ * the first began, so the reset is invisible. The trailing padding matches the
+ * gap for the same reason — without it the copies would butt together one gap
+ * short and the loop would visibly stutter once per cycle.
  *
- * The spacing lives on each list (`gap` plus a matching `pr`) rather than on the
- * container — without the trailing padding the two copies would butt together
- * one gap short, and the loop would visibly stutter once per cycle.
- *
- * The animation is CSS, so this stays a server component and the row scrolls
- * without waiting on hydration.
- *
- * The second copy is aria-hidden so the list is announced once, and the whole
- * row pauses on hover.
+ * Motion drives it rather than CSS keyframes. The CSS version had to express the
+ * distance as a percentage that resolved against intrinsic parent sizing, and it
+ * was fragile; Motion writes the transform directly and just runs.
  *
  * Styling is deliberately near-silent — monochrome, no pill chrome, low opacity.
- * This is a supporting row, and the reference's equivalent is just grey
- * wordmarks. An earlier version put each item in a bordered pill with a
- * brand-pink icon, which meant twelve saturated accents marching across the
- * page, pulling more attention than the CTA itself. The accent belongs to the
- * selected phrase and the primary button; everything here stays grey.
+ * This is a supporting row and the accent belongs to the selected phrase and the
+ * primary button. An earlier version gave each item a bordered pill and a
+ * brand-pink icon, which put twelve saturated accents on screen pulling more
+ * attention than the CTA.
  */
 const AUDIENCES = [
   { icon: Music, label: 'Musicians' },
@@ -55,22 +50,32 @@ const AUDIENCES = [
   { icon: Presentation, label: 'Speakers' },
 ]
 
+const DURATION = 32
+
 export default function AudienceMarquee() {
+  const reduceMotion = useReducedMotion()
+
   return (
-    <div className="fp-marquee">
-      <AudienceList />
-      <AudienceList duplicate />
+    <div
+      className="flex overflow-hidden"
+      style={{
+        maskImage: 'linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)',
+      }}
+    >
+      <AudienceList animate={!reduceMotion} />
+      <AudienceList animate={!reduceMotion} duplicate />
     </div>
   )
 }
 
-function AudienceList({ duplicate }: { duplicate?: boolean }) {
+function AudienceList({ animate, duplicate }: { animate: boolean; duplicate?: boolean }) {
   return (
-    // The trailing padding must match the gap, so the two copies stay exactly
-    // one gap apart and the loop doesn't jump.
-    <ul
-      className="fp-marquee-group flex items-center gap-12 pr-12"
+    <motion.ul
+      className="flex shrink-0 items-center gap-12 pr-12"
       aria-hidden={duplicate || undefined}
+      animate={animate ? { x: '-100%' } : undefined}
+      transition={{ duration: DURATION, ease: 'linear', repeat: Infinity, repeatType: 'loop' }}
     >
       {AUDIENCES.map(({ icon: Icon, label }) => (
         <li
@@ -81,6 +86,6 @@ function AudienceList({ duplicate }: { duplicate?: boolean }) {
           {label}
         </li>
       ))}
-    </ul>
+    </motion.ul>
   )
 }

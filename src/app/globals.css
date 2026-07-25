@@ -50,66 +50,6 @@ body {
 }
 
 /*
- * Continuously scrolling marquee.
- *
- * Each group animates independently by -100% of its *own* width, rather than a
- * shared track sliding -50% of itself. Both are seamless in theory, but this one
- * doesn't depend on the parent resolving `width: max-content` before the
- * percentage can be computed — a percentage translate resolves against the
- * element's own box, so each group only needs to know its own size. That makes
- * it the version that reliably runs.
- *
- * Why it loops invisibly: two identical groups sit side by side. When the first
- * has travelled exactly its own width, the second occupies the position the
- * first started from, so resetting to 0 is undetectable.
- *
- * Literal transforms in the keyframes, not Tailwind's translate utilities —
- * those compile to `translate: var(--tw-translate-*)`, and those custom
- * properties are declared `syntax: "*"`, which is not interpolatable.
- */
-@keyframes fp-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-.fp-marquee {
-  display: flex;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-}
-
-.fp-marquee-group {
-  flex-shrink: 0;
-  animation: fp-marquee 32s linear infinite;
-  will-change: transform;
-}
-
-.fp-marquee:hover .fp-marquee-group {
-  animation-play-state: paused;
-}
-
-/* Entrance for each message in the rotating announcement strip. */
-@keyframes fp-announce-in {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.fp-announce {
-  animation: fp-announce-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/*
  * The selection box drawn around a headline phrase.
  *
  * This can't just be inset-0 of the inline box. Inter's line box carries about
@@ -179,26 +119,19 @@ body {
 }
 
 /*
- * Respect reduced-motion, per animation rather than with a blanket rule.
+ * Reduced-motion, handled per animation rather than with a blanket rule.
  *
  * A global `*, *::before, *::after { animation-duration: .01ms !important;
  * transition-duration: .01ms !important }` used to live here. It's a common
- * snippet but it's a sledgehammer: it also kills hover colour fades and every
- * other harmless transition, and because it's `!important` it silently defeats
- * inline styles too — which makes anything that looks "instant" very hard to
- * trace back to a cause.
+ * snippet but it's a sledgehammer: it kills harmless hover colour fades along
+ * with real motion, and being `!important` it silently defeats inline styles
+ * too — which makes anything that looks "instant" very hard to trace.
  *
- * Continuous or travelling motion is what actually needs suppressing here, so
- * that's what's listed. The reveal keeps its fade and only loses the movement,
- * following "reduce, don't remove".
+ * Everything driven by Motion reads the preference through `useReducedMotion()`
+ * at its own call site. Only the CSS-driven reveal is handled here, and it keeps
+ * its fade and loses just the movement — reduce, don't remove.
  */
 @media (prefers-reduced-motion: reduce) {
-  .fp-marquee-group,
-  .fp-announce {
-    animation: none !important;
-    transform: none !important;
-  }
-
   .fp-reveal {
     animation-name: fp-fade-in;
   }

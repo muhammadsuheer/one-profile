@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import AnnouncementBar from './AnnouncementBar'
 
@@ -24,12 +25,10 @@ const NAV = [
  * which needed explicit layering and slid the row off the top of the viewport
  * when it got that wrong.
  *
- * The transform is an inline style rather than Tailwind's `-translate-y-full`
- * plus `transition-transform`, and that's deliberate: in Tailwind v4 the
- * translate utilities compile to `translate: var(--tw-translate-x)
- * var(--tw-translate-y)`, and those custom properties are untyped, so they flip
- * discretely instead of interpolating — the header snapped in and out with no
- * animation at all. A literal transform value has no such indirection.
+ * Motion drives the slide. Tailwind's translate utilities can't: in v4 they
+ * compile to `translate: var(--tw-translate-*)` and those custom properties are
+ * declared `syntax: "*"`, which isn't interpolatable, so the header snapped
+ * between states with no animation.
  *
  * `SCROLL_DELTA` matters too. Reacting to every scroll event meant a stray pixel
  * of trackpad momentum in the opposite direction flipped the state, so the header
@@ -75,13 +74,10 @@ export default function Navbar() {
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href))
 
   return (
-    <div
+    <motion.div
       className="sticky top-0 z-50"
-      style={{
-        transform: hidden && !open ? 'translateY(-100%)' : 'translateY(0)',
-        transition: 'transform 340ms cubic-bezier(0.22, 1, 0.36, 1)',
-        willChange: 'transform',
-      }}
+      animate={{ y: hidden && !open ? '-100%' : '0%' }}
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.9 }}
     >
       <AnnouncementBar />
 
@@ -171,6 +167,6 @@ export default function Navbar() {
           </div>
         )}
       </header>
-    </div>
+    </motion.div>
   )
 }

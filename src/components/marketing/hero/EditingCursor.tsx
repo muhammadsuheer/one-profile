@@ -1,46 +1,27 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 import { ACCENT } from './tokens'
 
 /**
- * The pointer resting on the selected phrase, drifting slowly so the scene
- * feels alive even if the visitor never moves their mouse.
+ * The pointer resting on the selected phrase, drifting slowly so the scene feels
+ * alive even if the visitor never moves their mouse.
  *
- * Its own tiny client component so the headline around it can stay a server
- * component. The drift offset is applied as `transform` from a rAF loop, which
- * is why the element's resting offset is a margin — a Tailwind translate class
- * would be overwritten every frame. The offset is positive so the arrow tip
- * sits just outside the box's corner; pulling it inward puts the tip on top of
- * the border and the corner handle, which reads as clutter rather than as a
- * pointer resting on the selection.
+ * Its own small client component so the headline around it can stay a server
+ * component. The resting offset is a margin rather than a transform, because
+ * Motion owns this element's transform — a translate here would be overwritten.
+ * A positive offset keeps the arrow tip just outside the box's corner; pulling it
+ * inward puts the tip on top of the border and the corner handle, which reads as
+ * clutter rather than as a pointer resting on the selection.
  */
 export default function EditingCursor() {
-  const ref = useRef<HTMLSpanElement | null>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-    let raf = 0
-    const start = performance.now()
-    const frame = (now: number) => {
-      const phase = ((now - start) / 6400) * Math.PI * 2
-      el.style.transform = `translate(${(Math.sin(phase) * 5).toFixed(2)}px, ${(
-        Math.sin(phase * 1.4) * 4
-      ).toFixed(2)}px)`
-      raf = requestAnimationFrame(frame)
-    }
-    raf = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(raf)
-  }, [])
+  const reduceMotion = useReducedMotion()
 
   return (
-    <span
-      ref={ref}
+    <motion.span
       className="absolute left-full top-full ml-1 mt-1 hidden select-none items-start sm:flex"
-      style={{ willChange: 'transform' }}
+      animate={reduceMotion ? undefined : { x: [0, 5, 0, -4, 0], y: [0, -4, 3, 0, 0] }}
+      transition={{ duration: 6.4, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
     >
       <svg
         width="20"
@@ -63,6 +44,6 @@ export default function EditingCursor() {
       >
         Aria · Musician
       </span>
-    </span>
+    </motion.span>
   )
 }

@@ -29,6 +29,7 @@
     "eslint-config-next": "^15.5.21",
     "isomorphic-dompurify": "^3.19.0",
     "lucide-react": "^1.26.0",
+    "motion": "^12.42.2",
     "next": "^15.5.21",
     "next-auth": "^5.0.0-beta.32",
     "qrcode": "^1.5.4",
