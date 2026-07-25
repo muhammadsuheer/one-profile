@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 import { Check } from 'lucide-react'
 
 const POINTS = ['Block-based editor with live preview', 'Real-time clicks & audience analytics', 'Custom themes, domains & no branding']
@@ -10,8 +11,8 @@ export function BrandPanel() {
       <div className="pointer-events-none absolute -left-24 top-16 h-80 w-80 rounded-full bg-[#F5124A]/25 blur-[110px]" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-[#F5124A]/10 blur-[110px]" />
 
-      <Link href="/" className="relative z-10 text-lg font-semibold tracking-tight">
-        FolioPage
+      <Link href="/" className="relative z-10">
+        <Logo size={26} />
       </Link>
 
       <div className="relative z-10">

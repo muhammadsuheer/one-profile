@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
+import Logo from '@/components/Logo'
 import AnnouncementBar from './AnnouncementBar'
 
 const NAV = [
@@ -85,10 +86,7 @@ export default function Navbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5124A] text-sm font-bold text-white">
-              F
-            </span>
-            <span className="text-lg font-semibold tracking-tight">FolioPage</span>
+            <Logo size={26} />
           </Link>
 
           {/* Center links (desktop) */}

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 const COLS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -37,10 +38,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5124A] text-sm font-bold text-white">
-                F
-              </span>
-              <span className="text-lg font-semibold tracking-tight">FolioPage</span>
+              <Logo size={26} />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
               Put everything you are on one page — links, videos, email capture and real
