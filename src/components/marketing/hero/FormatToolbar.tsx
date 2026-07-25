@@ -9,10 +9,16 @@ import { ACCENT } from './tokens'
  * Purely decorative. Rendered inside the selection box so it tracks the box's
  * right edge; `whitespace-nowrap` and `not-italic` keep it readable no matter
  * what the surrounding headline styling is.
+ *
+ * Only shown at 2xl. The headline column is centred inside a max-w-7xl
+ * container, so the toolbar necessarily hangs past that container's right edge
+ * — it needs roughly 350px beyond the box, which only clears the viewport from
+ * ~1470px up. Below that the hero's `overflow-hidden` would slice it in half,
+ * so it stays hidden and the box, handles and cursor carry the idea instead.
  */
 export default function FormatToolbar() {
   return (
-    <span className="absolute left-full top-1/2 ml-5 hidden -translate-y-1/2 items-center gap-0.5 whitespace-nowrap rounded-lg border border-white/10 bg-[#17171b] p-1.5 text-[13px] font-medium not-italic leading-none tracking-normal text-white shadow-2xl lg:flex">
+    <span className="absolute left-full top-1/2 ml-5 hidden -translate-y-1/2 items-center gap-0.5 whitespace-nowrap rounded-lg border border-white/10 bg-[#17171b] p-1.5 text-[13px] font-medium not-italic leading-none tracking-normal text-white shadow-2xl 2xl:flex">
       <span className="flex items-center gap-1.5 rounded px-2 py-1.5 text-white/80">
         Semibold
         <ChevronsUpDown className="h-3.5 w-3.5 text-white/40" />

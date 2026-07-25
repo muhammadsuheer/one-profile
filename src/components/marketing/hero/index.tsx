@@ -23,10 +23,12 @@ import { SURFACE } from './tokens'
  * headline, copy and CTA are in the initial HTML and their reveal is pure CSS —
  * nothing that matters waits for hydration.
  *
- * Heights are kept deliberately tight (min-h ~600px plus py-16) so the CTA
- * lands inside the first viewport on a laptop instead of below the fold. The
- * corner cards are absolutely positioned and only render at lg, where the side
- * margins are wide enough that they can't collide with the centered column.
+ * Heights are kept deliberately tight so the CTA lands inside the first
+ * viewport on a laptop: the sticky header above already costs ~106px, so the
+ * hero targets ~510px of its own (min-h 480 + py-14) rather than filling the
+ * screen. The corner cards are absolutely positioned and only render at lg,
+ * where the side margins are wide enough that they can't collide with the
+ * centred column.
  */
 export default function Hero() {
   return (
@@ -36,21 +38,21 @@ export default function Hero() {
     >
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[520px] max-w-7xl flex-col items-center justify-center px-5 py-16 lg:min-h-[600px] lg:py-20">
+      <section className="relative mx-auto flex min-h-[460px] max-w-7xl flex-col items-center justify-center px-5 py-14 lg:min-h-[540px] lg:py-16">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">
           <HeroHeadline />
         </Reveal>
 
-        <Reveal delay={120} className="relative z-0 mt-7">
-          <p className="mx-auto max-w-xl text-center text-lg leading-relaxed text-white/55">
+        <Reveal delay={120} className="relative z-0 mt-6">
+          <p className="mx-auto max-w-xl text-center text-[17px] leading-relaxed text-white/55">
             Build a bio page that stays on brand, in your control, and ready to share —
             links, videos, email capture and real analytics, all from blocks.
           </p>
         </Reveal>
 
-        <Reveal delay={220} className="relative z-0 mt-9">
+        <Reveal delay={220} className="relative z-0 mt-8">
           <HeroActions />
         </Reveal>
 

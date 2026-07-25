@@ -50,6 +50,47 @@ body {
 }
 
 /*
+ * The selection box drawn around a headline phrase.
+ *
+ * This can't just be inset-0 of the inline box. Inter's line box carries about
+ * 1.21em of ascent + descent, but an all-lowercase phrase like "one page" only
+ * inks from the x-height (0.527em above the baseline) down to the p/g
+ * descenders (~0.215em below it). A line-box-aligned border therefore leaves a
+ * large phantom gap above the glyphs and reads as unbalanced — the text sinks
+ * to the bottom of its own box.
+ *
+ * The offsets below anchor the border to the ink instead, and they're derived
+ * rather than eyeballed: everything falls out of the font's metrics and the
+ * line height, in em, so the box stays correct at every clamp() font size and
+ * only `--fp-lead` has to change if the headline's leading does. Never nudge
+ * these by pixel — adjust a metric or a padding and let the calc follow.
+ */
+.fp-selection-box {
+  /* Inter metrics, as a fraction of 1em */
+  --fp-ascent: 0.9688;
+  --fp-font-vm: 1.21; /* ascent + descent: the height of the font's own box */
+  --fp-x-height: 0.527; /* top of a lowercase o/n/e, above the baseline */
+  --fp-descender: 0.215; /* bottom of a lowercase p/g, below the baseline */
+
+  /* must match the headline's leading (see HeroHeadline) */
+  --fp-lead: 1.5;
+
+  /* optical padding: a little more above, since descenders fill space below */
+  --fp-pad-top: 0.3;
+  --fp-pad-bottom: 0.24;
+
+  /* where the baseline sits, measured from the top of the inline box */
+  --fp-baseline: calc((var(--fp-lead) - var(--fp-font-vm)) / 2 + var(--fp-ascent));
+
+  top: calc((var(--fp-baseline) - var(--fp-x-height) - var(--fp-pad-top)) * 1em);
+  bottom: calc(
+    (var(--fp-lead) - var(--fp-baseline) - var(--fp-descender) - var(--fp-pad-bottom)) * 1em
+  );
+  left: 0;
+  right: 0;
+}
+
+/*
  * Hero backdrop: three equal columns drawn as a repeating 1px line, framed by
  * the container's own left/right borders. Fades only at the top and bottom so
  * the lines stay crisp through the middle instead of washing out.

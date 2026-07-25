@@ -21,7 +21,7 @@ export default function HeroActions() {
 
       <Link
         href="/ava"
-        className="mt-5 text-sm text-white/45 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
+        className="mt-4 text-sm text-white/45 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
       >
         or see a live example
       </Link>
