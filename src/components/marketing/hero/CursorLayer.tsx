@@ -11,23 +11,20 @@ import { prefersReducedMotion } from './motion'
  * All motion runs off one requestAnimationFrame loop that writes `transform`
  * directly on each cursor — entrance travel, a continuous lissajous idle path,
  * and a shared mouse parallax offset, composed into a single transform per
- * frame. Deliberately not CSS keyframes: a single loop can't get out of sync
- * with itself, and it can't silently stop animating the way stacked
- * animation-delay chains can.
+ * frame. Deliberately not CSS keyframes: one loop can't fall out of sync with
+ * itself the way stacked animation-delay chains can.
  *
- * `containerRef` is the element the mouse position is measured against (the
- * hero section), so parallax is relative to the hero rather than the viewport.
+ * The layer is `inset-0` of the hero section, so it measures the pointer
+ * against its own bounding box; the listener is on `window` because the layer
+ * itself is pointer-events-none and would never receive mousemove.
  */
-export default function CursorLayer({
-  containerRef,
-}: {
-  containerRef: React.RefObject<HTMLElement | null>
-}) {
+export default function CursorLayer() {
+  const layerRef = useRef<HTMLDivElement | null>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const layer = layerRef.current
+    if (!layer) return
 
     if (prefersReducedMotion()) {
       itemRefs.current.forEach((el) => {
@@ -47,11 +44,18 @@ export default function CursorLayer({
     const start = performance.now()
 
     const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
+      const rect = layer.getBoundingClientRect()
+      // Ignore the pointer once it's outside the hero — the cursors should
+      // settle rather than react to movement further down the page.
+      if (e.clientY < rect.top || e.clientY > rect.bottom) {
+        targetX = 0
+        targetY = 0
+        return
+      }
       targetX = -((e.clientX - rect.left) / rect.width - 0.5) * 18
       targetY = -((e.clientY - rect.top) / rect.height - 0.5) * 18
     }
-    container.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
 
     const frame = (now: number) => {
       easedX += (targetX - easedX) * 0.06
@@ -90,13 +94,13 @@ export default function CursorLayer({
     raf = requestAnimationFrame(frame)
 
     return () => {
-      container.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mousemove', onMouseMove)
       cancelAnimationFrame(raf)
     }
-  }, [containerRef])
+  }, [])
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 hidden sm:block" aria-hidden>
+    <div ref={layerRef} className="pointer-events-none absolute inset-0 z-10 hidden sm:block" aria-hidden>
       {COLLABORATORS.map((c, i) => (
         <div key={c.name} className="absolute" style={{ top: c.top, left: c.left }}>
           <div
