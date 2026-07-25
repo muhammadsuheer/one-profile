@@ -8,51 +8,67 @@
  *
  * ── The logo's colours are never altered. ──
  *
- * Not tinted, not faded, not recoloured per surface, not swapped for dark mode.
- * The artwork is rendered through an `<img>` precisely for that: an external
- * image referenced this way is sealed off from the page's CSS, so `currentColor`,
- * `fill`, colour inheritance and `text-*` classes cannot reach inside it.
- * Inlining the SVG or passing `opacity` / `filter` / `mix-blend-mode` through
- * `className` would break that — don't. `className` is for layout only.
+ * Not tinted, not faded, not recoloured, not filtered. The artwork is rendered
+ * through an `<img>` precisely for that: an external image referenced this way is
+ * sealed off from the page's CSS, so `currentColor`, `fill`, colour inheritance
+ * and `text-*` classes cannot reach inside it. Inlining the SVG or passing
+ * `opacity` / `filter` / `mix-blend-mode` through `className` would break that —
+ * don't. `className` is for layout only.
  *
- * ── Which variant goes where ──
+ * ── `tone` names the background, not the logo ──
  *
- * The wordmark sets "page" as a near-white outline (#fcfbfc), so the lockup is
- * built for dark surfaces and "page" all but disappears on a light one. The fix
- * is to pick the right variant, not to recolour anything:
+ * There are two authored lockups and the difference is the wordmark: on the dark
+ * one "page" is a near-white outline, on the light one it's near-black. So the
+ * choice is which surface the logo is sitting on, and getting it wrong makes
+ * "page" disappear rather than merely look off. Hence `tone="onLight"` rather
+ * than a name like "light", which reads as a property of the logo itself.
  *
- *   variant="lockup"  dark surfaces — marketing navbar, footer, auth brand panel
- *   variant="mark"    light surfaces — dashboard, onboarding — plus favicons,
- *                     avatars, and anywhere too tight for a wordmark
+ * The mark is the same artwork for both — crimson over dark maroon reads against
+ * either surface — so it needs no tone.
  *
- * Dimensions are hard-coded from the trimmed artwork so the browser reserves the
- * right box and the logo can't shift the layout as it loads. The source export
- * was 666×375 with the logo occupying only 392×90 of it — two thirds empty
- * padding — which would have rendered the logo at a quarter of its intended size
- * inside any height we set. `public/brand/*` holds the trimmed versions; the
- * original is kept at `public/logo.webp`.
+ * Dimensions are hard-coded per file so the browser reserves the right box and
+ * the logo can't shift the layout as it loads. Note the two lockups aren't the
+ * same aspect ratio, which is why each carries its own numbers rather than
+ * sharing one.
+ *
+ * `public/brand/*` holds trimmed copies; the authored exports stay in `public/`.
+ * Trimming mattered: they ship at 666×375 with the logo occupying 392×90 of it,
+ * so rendered inside any height we set the logo would have come out at roughly a
+ * quarter of its intended size.
  */
-
-/** Intrinsic size of the trimmed artwork. */
-const LOCKUP = { width: 392, height: 90 }
-const MARK = { width: 84, height: 90 }
+const ART = {
+  lockup: {
+    onDark: { src: '/brand/logo-dark.webp', width: 392, height: 90 },
+    onLight: { src: '/brand/logo-white.webp', width: 470, height: 106 },
+  },
+  mark: {
+    onDark: { src: '/brand/mark.webp', width: 84, height: 90 },
+    onLight: { src: '/brand/mark.webp', width: 84, height: 90 },
+  },
+} as const
 
 export type LogoProps = {
   /** Rendered height in px. Width follows the artwork's aspect ratio. */
   size?: number
   variant?: 'lockup' | 'mark'
+  /** The background this sits on — see the note above. */
+  tone?: 'onDark' | 'onLight'
   className?: string
 }
 
-export default function Logo({ size = 26, variant = 'lockup', className = '' }: LogoProps) {
-  const art = variant === 'mark' ? MARK : LOCKUP
-  const src = variant === 'mark' ? '/brand/mark.webp' : '/brand/logo.webp'
+export default function Logo({
+  size = 26,
+  variant = 'lockup',
+  tone = 'onDark',
+  className = '',
+}: LogoProps) {
+  const art = ART[variant][tone]
   const width = Math.round((size * art.width) / art.height)
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={art.src}
       alt="FolioPage"
       width={width}
       height={size}
