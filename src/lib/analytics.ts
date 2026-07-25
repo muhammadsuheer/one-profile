@@ -29,6 +29,25 @@ export async function getSummary(siteId: string, since: Date): Promise<Summary> 
   return { views, clicks: clk, ctr: views > 0 ? clk / views : 0 }
 }
 
+/**
+ * Lifetime view count for a site, for the public-facing counter.
+ *
+ * Deliberately not windowed like the dashboard figures: a visitor reading
+ * "12,483 views" understands that as everything ever, and a number that quietly
+ * shrank because a 30-day window rolled forward would look broken.
+ *
+ * A page view is a `clicks` row with a null `blockId` — the same convention
+ * getSummary uses, so the public number and the dashboard's can't disagree.
+ */
+export async function getLifetimeViews(siteId: string): Promise<number> {
+  const [row] = await db
+    .select({ views: sql<number>`count(*)`.mapWith(Number) })
+    .from(clicks)
+    .where(and(eq(clicks.siteId, siteId), sql`${clicks.blockId} is null`))
+
+  return row?.views ?? 0
+}
+
 export interface DailyPoint {
   day: string
   views: number

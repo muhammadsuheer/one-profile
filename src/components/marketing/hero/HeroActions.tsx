@@ -35,10 +35,10 @@ export default function HeroActions() {
       </motion.div>
 
       <Link
-        href="/ava"
+        href="/examples"
         className="mt-4 text-sm text-white/45 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
       >
-        or see a live example
+        or see five real pages
       </Link>
     </div>
   )

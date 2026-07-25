@@ -2,9 +2,11 @@ import type { Metadata } from 'next'
 import type { CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
 import { getPublishedSiteBySlug, getSiteOwnerPlan } from '@/lib/sites'
+import { getLifetimeViews } from '@/lib/analytics'
 import { parseThemeConfig, themeToCssVars } from '@/lib/theme'
 import { renderBlock } from '@/lib/blocks/registry'
 import { buildProfileJsonLd } from '@/lib/jsonld'
+import { Eye } from 'lucide-react'
 import { env } from '@/env'
 
 // ISR: pages are cached and revalidated at most every 60s (§8).
@@ -54,6 +56,10 @@ export default async function PublicPage({ params }: Params) {
   const showBranding = plan === 'free' ? true : !theme.hideBranding
   const style = { ...themeToCssVars(theme), fontFamily: 'var(--font-page)' } as unknown as CSSProperties
 
+  // Only queried when the owner has switched the counter on, so a page without
+  // it costs no extra round trip.
+  const viewCount = theme.showViewCount ? await getLifetimeViews(data.site.id) : null
+
   const pageUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/${data.site.slug}`
   const jsonLd = buildProfileJsonLd(data.blocks, pageUrl)
 
@@ -70,6 +76,15 @@ export default async function PublicPage({ params }: Params) {
         {data.blocks.map((block) => (
           <div key={block.id}>{renderBlock(block)}</div>
         ))}
+
+        {viewCount !== null && (
+          <div className="pt-6 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--text-muted)]/20 px-3 py-1 text-xs font-medium text-[var(--text-muted)]">
+              <Eye className="h-3.5 w-3.5" />
+              {viewCount.toLocaleString('en-US')} {viewCount === 1 ? 'view' : 'views'}
+            </span>
+          </div>
+        )}
 
         {showBranding && (
           <footer className="pt-8 text-center">

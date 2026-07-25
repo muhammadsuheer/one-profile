@@ -71,6 +71,14 @@ export const themeConfigSchema = z.object({
   fontFamily: fontFamilySchema.default('Inter'),
   buttonStyle: buttonStyleSchema.default('rounded'),
   hideBranding: z.boolean().optional().default(false),
+  /**
+   * Show the page's lifetime view count publicly.
+   *
+   * Off by default and deliberately opt-in: a low number on a new page reads as
+   * "nobody comes here", which is the opposite of what a creator wants a visitor
+   * to feel. It's worth switching on once the number helps rather than hurts.
+   */
+  showViewCount: z.boolean().optional().default(false),
 })
 export type ThemeConfig = z.infer<typeof themeConfigSchema>
 
@@ -87,6 +95,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   fontFamily: 'Inter',
   buttonStyle: 'rounded',
   hideBranding: false,
+  showViewCount: false,
 }
 
 /** Parse a stored theme, never throwing — falls back to the default on bad data. */

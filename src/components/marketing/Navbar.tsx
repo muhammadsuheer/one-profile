@@ -10,6 +10,7 @@ import AnnouncementBar from './AnnouncementBar'
 
 const NAV = [
   { href: '/', label: 'Home' },
+  { href: '/examples', label: 'Examples' },
   { href: '/about', label: 'About' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/contact', label: 'Contact' },

@@ -63,6 +63,9 @@ export async function createSiteFromOnboarding(
     fontFamily: 'Inter',
     buttonStyle: 'rounded',
     hideBranding: false,
+    // A brand-new page has no views worth showing — the owner can turn this on
+    // from Design once the number helps them.
+    showViewCount: false,
   }
 
   let site: { id: string } | undefined

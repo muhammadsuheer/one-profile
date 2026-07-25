@@ -190,6 +190,23 @@ export function DesignClient({
           </select>
         </Section>
 
+        <Section title="Page">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3">
+            <div>
+              <p className="text-sm font-medium">Show view count</p>
+              <p className="text-xs text-neutral-400">
+                Display your page&apos;s total views publicly. Off by default — worth
+                turning on once the number works in your favour.
+              </p>
+            </div>
+            <Switch
+              checked={!!theme.showViewCount}
+              onCheckedChange={(v) => update({ showViewCount: v })}
+              aria-label="Show view count"
+            />
+          </div>
+        </Section>
+
         <Section title="Branding">
           <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3">
             <div>
