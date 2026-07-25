@@ -30,6 +30,13 @@ import {
  *
  * The second copy is aria-hidden so the list is announced once, and the whole
  * row pauses on hover.
+ *
+ * Styling is deliberately near-silent — monochrome, no pill chrome, low opacity.
+ * This is a supporting row, and the reference's equivalent is just grey
+ * wordmarks. An earlier version put each item in a bordered pill with a
+ * brand-pink icon, which meant twelve saturated accents marching across the
+ * page, pulling more attention than the CTA itself. The accent belongs to the
+ * selected phrase and the primary button; everything here stays grey.
  */
 const AUDIENCES = [
   { icon: Music, label: 'Musicians' },
@@ -59,13 +66,15 @@ export default function AudienceMarquee() {
 
 function AudienceList({ duplicate }: { duplicate?: boolean }) {
   return (
-    <ul className="flex shrink-0 items-center gap-3 pr-3" aria-hidden={duplicate || undefined}>
+    // The gap and the trailing padding must match, so the two copies are
+    // separated by exactly one gap and the -50% slide stays seamless.
+    <ul className="flex shrink-0 items-center gap-12 pr-12" aria-hidden={duplicate || undefined}>
       {AUDIENCES.map(({ icon: Icon, label }) => (
         <li
           key={label}
-          className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:border-white/15 hover:text-white/85"
+          className="inline-flex shrink-0 items-center gap-2.5 text-sm font-medium text-white/35 transition-colors hover:text-white/70"
         >
-          <Icon className="h-4 w-4 shrink-0 text-[#F5124A]/70" />
+          <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
           {label}
         </li>
       ))}
