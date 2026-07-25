@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { ACCENT } from './tokens'
 
 /**
@@ -15,12 +15,10 @@ import { ACCENT } from './tokens'
  * clutter rather than as a pointer resting on the selection.
  */
 export default function EditingCursor() {
-  const reduceMotion = useReducedMotion()
-
   return (
     <motion.span
       className="absolute left-full top-full ml-1 mt-1 hidden select-none items-start sm:flex"
-      animate={reduceMotion ? undefined : { x: [0, 5, 0, -4, 0], y: [0, -4, 3, 0, 0] }}
+      animate={{ x: [0, 5, 0, -4, 0], y: [0, -4, 3, 0, 0] }}
       transition={{ duration: 6.4, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
     >
       <svg

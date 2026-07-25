@@ -25,31 +25,6 @@ body {
 }
 
 /*
- * Entrance reveal for marketing sections.
- *
- * Deliberately a CSS animation and not a JS/state-driven transition: a
- * transition that only starts after hydration leaves the server-rendered
- * markup at opacity 0, so visitors stare at an empty hero until the bundle
- * arrives. This runs the moment the element is painted — no JavaScript on the
- * critical path — and `both` holds the pre-animation state so animation-delay
- * still staggers the parts.
- */
-@keyframes fp-reveal-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.fp-reveal {
-  animation: fp-reveal-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/*
  * The selection box drawn around a headline phrase.
  *
  * This can't just be inset-0 of the inline box. Inter's line box carries about
@@ -119,29 +94,16 @@ body {
 }
 
 /*
- * Reduced-motion, handled per animation rather than with a blanket rule.
+ * Reduced-motion is not handled here.
  *
  * A global `*, *::before, *::after { animation-duration: .01ms !important;
- * transition-duration: .01ms !important }` used to live here. It's a common
- * snippet but it's a sledgehammer: it kills harmless hover colour fades along
- * with real motion, and being `!important` it silently defeats inline styles
- * too — which makes anything that looks "instant" very hard to trace.
+ * transition-duration: .01ms !important }` used to live in this file. It's a
+ * common snippet but it's a sledgehammer: it kills harmless hover colour fades
+ * along with real motion, and being `!important` it silently defeats inline
+ * styles too — which makes anything that looks "instant" very hard to trace.
  *
- * Everything driven by Motion reads the preference through `useReducedMotion()`
- * at its own call site. Only the CSS-driven reveal is handled here, and it keeps
- * its fade and loses just the movement — reduce, don't remove.
+ * Motion now owns the preference, via `MotionConfig reducedMotion="user"` in
+ * MotionProvider. The only exceptions are the two hand-driven animations Motion
+ * can't see — the ticker's requestAnimationFrame loop and the announcement
+ * strip's interval — and each checks the preference itself.
  */
-@media (prefers-reduced-motion: reduce) {
-  .fp-reveal {
-    animation-name: fp-fade-in;
-  }
-}
-
-@keyframes fp-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}

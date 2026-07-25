@@ -1,10 +1,12 @@
+'use client'
+
+import { motion } from 'motion/react'
 import HeroBackdrop from './HeroBackdrop'
 import HeroHeadline from './HeroHeadline'
 import HeroActions from './HeroActions'
 import CursorLayer from './CursorLayer'
 import AgentCard from './AgentCard'
 import StatusCard from './StatusCard'
-import { Reveal } from './motion'
 import { SURFACE } from './tokens'
 
 /**
@@ -13,72 +15,106 @@ import { SURFACE } from './tokens'
  *   HeroBackdrop   framed 3-column grid + accent glow
  *   HeroHeadline   the copy, with "one page" as a selected text box
  *     └ SelectedPhrase → SelectionHandles, FormatToolbar, EditingCursor
- *   CursorLayer    the collaborators floating in the side margins (rAF motion)
+ *   CursorLayer    the collaborators working around the copy
  *   HeroActions    one primary CTA + a quiet secondary link
- *   AgentCard      bottom-left  — an AI suggestion
- *   StatusCard     bottom-right — the published page
+ *   AgentCard      lower-left  — an AI suggestion
+ *   StatusCard     lower-right — the published page
  *
- * This is a *server* component. Only the two pieces that genuinely need a
- * animation loop (CursorLayer, EditingCursor) are client components, so the
- * headline, copy and CTA are in the initial HTML and their reveal is pure CSS —
- * nothing that matters waits for hydration.
+ * The entrance is a Motion variant chain: the section declares the stagger and
+ * each block just names the `item` variant, so the order and rhythm live in one
+ * place instead of being spread across per-element delays. The corner cards are
+ * absolutely positioned and so can't be stagger children — they animate on their
+ * own, after the copy has landed.
  *
- * Two rules keep the scene from reading as a pile, both taken from the
- * reference:
+ * Two rules keep the scene from reading as a pile, both taken from the reference:
  *
  * 1. A narrow copy column (~half the frame) so the side margins are genuinely
  *    wide. Widening it is what previously squeezed the cursors and cards
  *    together.
  * 2. A horizontal split: cursors occupy the upper band, cards the lower one,
- *    with a clear gap between. The cards used to be pinned to the bottom
- *    corners while cursors sat mid-height, so both competed for the same strip.
- *    The cards are staggered rather than level, which reads as more incidental.
+ *    with a clear gap between. The cards used to be pinned to the bottom corners
+ *    while cursors sat mid-height, so both competed for the same strip. The cards
+ *    are staggered rather than level, which reads as more incidental.
  *
- * There's no bottom border, and the background matches the page: the hero and
- * the audience strip below it should read as one continuous field, the way the
+ * There's no bottom border, and the background matches the page: the hero and the
+ * audience strip below it should read as one continuous field, the way the
  * reference runs its hero straight into its logo row.
  *
  * The CTA lands inside the first viewport on a laptop (the sticky header above
  * costs ~108px); the cards may run past the fold, which is what invites scroll.
  */
+const stage = {
+  hidden: {},
+  shown: { transition: { staggerChildren: 0.11, delayChildren: 0.06 } },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  shown: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.62, ease: [0.22, 1, 0.36, 1] as const },
+  },
+}
+
+/** Corner cards arrive last, once the copy has settled. */
+const card = {
+  hidden: { opacity: 0, y: 14 },
+  shown: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
+  }),
+}
+
 export default function Hero() {
   return (
     <div className="relative overflow-hidden" style={{ backgroundColor: SURFACE }}>
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[440px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[500px] lg:py-14">
+      <motion.section
+        className="relative mx-auto flex min-h-[440px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[500px] lg:py-14"
+        variants={stage}
+        initial="hidden"
+        animate="shown"
+      >
         <CursorLayer />
 
-        <Reveal className="relative z-0 w-full">
+        <motion.div variants={item} className="relative z-0 w-full">
           <HeroHeadline />
-        </Reveal>
+        </motion.div>
 
         {/* A deliberately narrow measure — this is what leaves room for the
             cursors and cards in the margins. Two sentences rather than a dash:
             at this width a dash ended up opening the second line, which reads as
             a typo. */}
-        <Reveal delay={120} className="relative z-0 mt-11">
-          <p className="mx-auto max-w-md text-center text-[17px] leading-relaxed text-white/55">
-            Links, videos, email capture and real analytics. All from blocks you
-            drag into place.
-          </p>
-        </Reveal>
+        <motion.p
+          variants={item}
+          className="relative z-0 mt-11 max-w-md text-center text-[17px] leading-relaxed text-white/55"
+        >
+          Links, videos, email capture and real analytics. All from blocks you
+          drag into place.
+        </motion.p>
 
-        {/* Tighter than the gap above the copy on purpose — the CTA needs to sit
-            inside the fold on a laptop, and this is the gap to give up first. */}
-        <Reveal delay={220} className="relative z-0 mt-10">
+        <motion.div variants={item} className="relative z-0 mt-10">
           <HeroActions />
-        </Reveal>
+        </motion.div>
 
-        {/* Corner cards — the lower band, staggered so they don't read as a
-            matched pair, and only at lg where the margins are wide enough. */}
-        <Reveal delay={520} className="absolute bottom-16 left-5 z-10 hidden lg:block">
+        <motion.div
+          variants={card}
+          custom={0.55}
+          className="absolute bottom-16 left-5 z-10 hidden lg:block"
+        >
           <AgentCard />
-        </Reveal>
-        <Reveal delay={600} className="absolute bottom-8 right-5 z-10 hidden lg:block">
+        </motion.div>
+        <motion.div
+          variants={card}
+          custom={0.66}
+          className="absolute bottom-8 right-5 z-10 hidden lg:block"
+        >
           <StatusCard />
-        </Reveal>
-      </section>
+        </motion.div>
+      </motion.section>
     </div>
   )
 }
