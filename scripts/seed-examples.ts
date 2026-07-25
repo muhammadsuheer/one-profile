@@ -12,6 +12,18 @@ import type { BlockData } from '../src/lib/blocks/schemas'
 /**
  * Seeds the example pages behind /examples.
  *
+ * ── Row budget ──
+ *
+ * Keep this small. An earlier version seeded ~5,000 click rows per site across 90
+ * days to make the analytics charts look busy, which came to ~25,000 rows over a
+ * hundred-odd round trips and exhausted the database's free-tier allowance. The
+ * charts looked good and the database stopped answering, which is a bad trade.
+ *
+ * Now: ~250-600 views per site over 30 days, inserted 500 rows at a time. Roughly
+ * 2,500 rows and under ten round trips in total. An example page reading "410
+ * views" is perfectly credible — the number never needed to be large, it needed to
+ * be real.
+ *
  * These are the strongest sales asset the marketing site has: a visitor deciding
  * whether to sign up wants to see a page in *their* field, not one generic demo.
  * So there are five, across five fields, each on a different palette and using a
@@ -21,11 +33,11 @@ import type { BlockData } from '../src/lib/blocks/schemas'
  * A few decisions worth knowing about:
  *
  * View counts are real rows, not a number typed into a field. Each site gets
- * page-view and block-click rows spread over the last 90 days, weighted toward
- * recent days, so the public counter, the 30-day chart and the click-through rate
- * all agree with each other and with what the product would actually record. A
- * hard-coded count would have been faster and would have started lying the moment
- * anyone opened the analytics tab.
+ * page-view and block-click rows spread over the last 30 days, weighted toward
+ * recent days, so the public counter, the analytics chart and the click-through
+ * rate all agree with each other and with what the product would actually record.
+ * A hard-coded count would have been faster and would have started lying the
+ * moment anyone opened the analytics tab.
  *
  * The personas are fictional but written straight — no jokes, no placeholder
  * names. `/examples` frames them as example pages, which is the honest way to
@@ -88,7 +100,7 @@ const EXAMPLES: Example[] = [
       title: 'Mara Vance — Indie folk from Lisbon',
       description: 'New EP, tour dates, and where to listen.',
     },
-    views: 2840,
+    views: 340,
     blocks: [
       {
         type: 'profile',
@@ -148,7 +160,7 @@ const EXAMPLES: Example[] = [
       title: 'Deniz Kaya — Strength coach, Berlin',
       description: 'Programs, free mobility plan, and coaching availability.',
     },
-    views: 1960,
+    views: 235,
     blocks: [
       {
         type: 'profile',
@@ -229,7 +241,7 @@ const EXAMPLES: Example[] = [
       title: 'Isabela Rocha — Documentary photographer',
       description: 'Selected work, archival prints, and how to reach me.',
     },
-    views: 3410,
+    views: 410,
     blocks: [
       {
         type: 'profile',
@@ -293,7 +305,7 @@ const EXAMPLES: Example[] = [
       title: 'Theo Aluko — The Long Game',
       description: 'Listen to the show, read the notes, join the newsletter.',
     },
-    views: 5120,
+    views: 615,
     blocks: [
       {
         type: 'profile',
@@ -355,7 +367,7 @@ const EXAMPLES: Example[] = [
       title: 'Priya Raman — Building Ledgerly',
       description: 'What I’m building, why, and how to try it.',
     },
-    views: 1470,
+    views: 175,
     blocks: [
       {
         type: 'profile',
@@ -433,10 +445,10 @@ const pick = <T,>(list: readonly T[], i: number) => list[i % list.length]
  */
 function buildEvents(siteId: string, blockIds: string[], views: number) {
   const rows: (typeof schema.clicks.$inferInsert)[] = []
-  const DAYS = 90
+  const DAYS = 30
 
   for (let day = 0; day < DAYS; day++) {
-    // Newer days get more traffic: ~3x on day 0 tapering to ~0.4x at day 90.
+    // Newer days get more traffic: ~3x on day 0 tapering to ~0.4x at the end.
     const recency = 0.4 + 2.6 * Math.pow(1 - day / DAYS, 2)
     const dayViews = Math.max(1, Math.round((views / DAYS) * recency))
 
@@ -468,7 +480,7 @@ function buildEvents(siteId: string, blockIds: string[], views: number) {
 }
 
 /** neon-http has a statement size limit, so inserts go in chunks. */
-async function insertInChunks<T>(rows: T[], insert: (chunk: T[]) => Promise<unknown>, size = 250) {
+async function insertInChunks<T>(rows: T[], insert: (chunk: T[]) => Promise<unknown>, size = 500) {
   for (let i = 0; i < rows.length; i += size) {
     await insert(rows.slice(i, i + size))
   }
