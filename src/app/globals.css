@@ -77,9 +77,17 @@ body {
   /* must match the headline's leading (see HeroHeadline) */
   --fp-lead: 1.5;
 
-  /* equal optical padding above the x-height and below the descenders */
-  --fp-pad-top: 0.26;
-  --fp-pad-bottom: 0.26;
+  /*
+   * Padding is intentionally uneven. Equal values above the x-height and below
+   * the descenders measure the same but don't *look* the same: only two glyphs
+   * in "one page" descend, so the bulk of the word sits between the x-height
+   * and the baseline, and the descender zone below reads as empty space. With
+   * 0.26 on both sides there was 0.47em below the baseline against 0.26em above
+   * the x-height — nearly double — and the box looked bottom-heavy. Weighting
+   * the padding upward balances it against where the ink actually is.
+   */
+  --fp-pad-top: 0.28;
+  --fp-pad-bottom: 0.16;
 
   /* where the baseline sits, measured from the top of the inline box */
   --fp-baseline: calc((var(--fp-lead) - var(--fp-font-vm)) / 2 + var(--fp-ascent));

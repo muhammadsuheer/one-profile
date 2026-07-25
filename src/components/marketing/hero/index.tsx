@@ -42,7 +42,7 @@ export default function Hero() {
     >
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[520px] max-w-7xl flex-col items-center justify-center px-5 py-16 lg:min-h-[620px] lg:py-20">
+      <section className="relative mx-auto flex min-h-[500px] max-w-7xl flex-col items-center justify-center px-5 py-14 lg:min-h-[580px] lg:py-16">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">
@@ -60,7 +60,9 @@ export default function Hero() {
           </p>
         </Reveal>
 
-        <Reveal delay={220} className="relative z-0 mt-14">
+        {/* Tighter than the gap above the copy on purpose — the CTA needs to sit
+            inside the fold on a laptop, and this is the gap to give up first. */}
+        <Reveal delay={220} className="relative z-0 mt-10">
           <HeroActions />
         </Reveal>
 

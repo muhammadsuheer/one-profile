@@ -54,5 +54,5 @@ export type Collaborator = {
 export const COLLABORATORS: Collaborator[] = [
   { name: 'Kai', role: 'Founder', color: '#34d399', top: '22%', left: '77%', facing: 'left', fromX: 58, fromY: -28, delay: 300, radius: 16, period: 10000 },
   { name: 'Devon', role: 'Creator', color: '#a78bfa', top: '34%', left: '15%', facing: 'right', fromX: -60, fromY: -20, delay: 460, radius: 16, period: 7600 },
-  { name: 'Zoe', role: 'Coach', color: '#fbbf24', top: '54%', left: '16%', facing: 'right', fromX: -52, fromY: 34, delay: 620, radius: 13, period: 8400 },
+  { name: 'Zoe', role: 'Coach', color: '#fbbf24', top: '50%', left: '11%', facing: 'right', fromX: -52, fromY: 34, delay: 620, radius: 13, period: 8400 },
 ]
