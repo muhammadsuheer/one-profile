@@ -13,7 +13,14 @@ import { COLLABORATORS, type Collaborator } from './tokens'
  *
  *   parallax  a spring following the pointer, shared by all cursors
  *   entrance  travels in from an offset once, on a delay
- *   idle      a slow looping drift so the scene stays alive at rest
+ *   route     walks a set of waypoints, holding at each one
+ *
+ * The route is what makes these read as people. An earlier version drifted each
+ * cursor a dozen pixels around a fixed point, which looked like it was standing
+ * still — the movement has to actually change where the pointer *is*. Travelling
+ * and then stopping is the other half of it: continuous motion reads as
+ * mechanical, so every waypoint is held before the next journey begins (see
+ * `route` in tokens.ts).
  *
  * The parallax is measured against this layer's own box — it's inset-0 of the
  * hero — and the listener is on `window`, because the layer is
@@ -75,32 +82,33 @@ function Cursor({
   index: number
   reduceMotion: boolean
 }) {
-  const { name, role, color, facing, fromX, fromY, delay, radius, period } = collaborator
+  const { name, role, color, facing, fromX, fromY, delay, route, duration } = collaborator
 
   if (reduceMotion) {
     return <CollabCursor name={name} role={role} color={color} facing={facing} />
   }
+
+  const entrance = 0.72
 
   return (
     // entrance — runs once
     <motion.div
       initial={{ opacity: 0, x: fromX, y: fromY }}
       animate={{ opacity: 1, x: 0, y: 0 }}
-      transition={{ duration: 0.9, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: entrance, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* idle drift — offset per cursor so they never move in unison */}
+      {/* route — travel to each waypoint, hold, move on */}
       <motion.div
-        animate={{
-          x: [0, radius, 0, -radius * 0.6, 0],
-          y: [0, -radius * 0.55, radius * 0.4, 0, 0],
-        }}
+        animate={{ x: route.x, y: route.y }}
         transition={{
-          duration: period / 1000,
-          delay: delay / 1000 + 0.9,
+          duration: duration / 1000,
+          delay: delay / 1000 + entrance,
+          times: route.times,
           repeat: Infinity,
           repeatType: 'loop',
+          // easeInOut per leg gives the accelerate-then-settle of a real hand;
+          // the holds come from the duplicated waypoints, not from the easing.
           ease: 'easeInOut',
-          times: [0, 0.25, 0.5, 0.75, 1],
         }}
       >
         <CollabCursor name={name} role={role} color={color} facing={facing} />

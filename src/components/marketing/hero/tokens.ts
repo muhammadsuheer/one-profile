@@ -31,9 +31,22 @@ export type Collaborator = {
   fromY: number
   /** Entrance delay (ms). */
   delay: number
-  /** Idle loop radius (px) and period (ms). */
-  radius: number
-  period: number
+  /**
+   * The route this person's pointer takes, as px offsets from the rest position.
+   *
+   * Each waypoint is listed twice so the pointer travels to it and then holds
+   * there. Moving, stopping, then moving again is what makes it read as a hand
+   * rather than as something orbiting on a loop — the previous version drifted a
+   * dozen pixels continuously and looked like it was standing still.
+   *
+   * `times` sets that rhythm: the interval between a duplicated pair is the
+   * dwell, the interval between pairs is the journey. All three arrays must be
+   * the same length, and x/y must start and end at 0 so the route closes without
+   * a jump.
+   */
+  route: { x: number[]; y: number[]; times: number[] }
+  /** How long one full route takes (ms). */
+  duration: number
 }
 
 /**
@@ -48,21 +61,70 @@ export type Collaborator = {
  * pinned to the bottom corners, so both fought for the same strip — the pills
  * ended up tucked behind the cards.
  *
- * So: every cursor rests **above ~52%** (a cursor is ~46px tall plus up to
- * `radius` of drift), and the cards start below ~68%. Within that band each
- * cursor hugs the line it belongs to rather than being pushed to the frame edge,
- * which is what reads as "these people are working on this" and leaves the outer
- * margins genuinely empty:
+ * So each cursor's rest position sits in the upper band, and its route is shaped
+ * to stay there — the cards begin below ~68%, and a cursor is ~46px tall, so the
+ * routes push upward and sideways rather than down. Within that band each one
+ * works near the line it belongs to, which is what reads as "these people are
+ * working on this" and leaves the outer margins genuinely empty:
  *
  *   Kai   beside the end of headline line 1
  *   Devon beside the start of headline line 2 (the shorter line)
  *   Zoe   beside the sub-heading
  *
- * One more constraint: a pill is ~165px wide, so it must not reach into the line
- * it sits next to. That's what caps how far in these can move.
+ * One more constraint: a pill is ~165px wide, so neither the rest position nor
+ * any waypoint may carry it into the line it sits beside. That's what caps how
+ * far the routes reach inward.
  */
 export const COLLABORATORS: Collaborator[] = [
-  { name: 'Kai', role: 'Founder', color: '#34d399', top: '18%', left: '77%', facing: 'left', fromX: 58, fromY: -28, delay: 300, radius: 16, period: 10000 },
-  { name: 'Devon', role: 'Creator', color: '#a78bfa', top: '34%', left: '19%', facing: 'right', fromX: -60, fromY: -20, delay: 460, radius: 16, period: 7600 },
-  { name: 'Zoe', role: 'Coach', color: '#fbbf24', top: '50%', left: '16%', facing: 'right', fromX: -52, fromY: 30, delay: 620, radius: 13, period: 8400 },
+  {
+    name: 'Kai',
+    role: 'Founder',
+    color: '#34d399',
+    top: '18%',
+    left: '77%',
+    facing: 'left',
+    fromX: 64,
+    fromY: -30,
+    delay: 140,
+    duration: 21000,
+    route: {
+      x: [0, 46, 46, 18, 18, 74, 74, 0],
+      y: [0, 62, 62, 118, 118, 44, 44, 0],
+      times: [0, 0.13, 0.27, 0.4, 0.55, 0.68, 0.85, 1],
+    },
+  },
+  {
+    name: 'Devon',
+    role: 'Creator',
+    color: '#a78bfa',
+    top: '34%',
+    left: '19%',
+    facing: 'right',
+    fromX: -64,
+    fromY: -22,
+    delay: 300,
+    duration: 24000,
+    route: {
+      x: [0, -38, -38, 26, 26, -14, -14, 0],
+      y: [0, -74, -74, -108, -108, -34, -34, 0],
+      times: [0, 0.15, 0.3, 0.43, 0.58, 0.72, 0.88, 1],
+    },
+  },
+  {
+    name: 'Zoe',
+    role: 'Coach',
+    color: '#fbbf24',
+    top: '50%',
+    left: '16%',
+    facing: 'right',
+    fromX: -56,
+    fromY: 28,
+    delay: 440,
+    duration: 19000,
+    route: {
+      x: [0, 52, 52, -30, -30, 20, 20, 0],
+      y: [0, -56, -56, -96, -96, -28, -28, 0],
+      times: [0, 0.12, 0.28, 0.42, 0.56, 0.7, 0.86, 1],
+    },
+  },
 ]

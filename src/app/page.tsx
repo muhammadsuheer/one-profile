@@ -11,7 +11,7 @@ import {
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
 import Hero from '@/components/marketing/hero'
-import AudienceMarquee from '@/components/marketing/AudienceMarquee'
+import AudienceTicker from '@/components/marketing/AudienceTicker'
 
 const FEATURES = [
   { icon: Blocks, title: 'Block-based editor', body: 'Drag, drop and reorder blocks. Links, video, galleries, products and more.' },
@@ -47,10 +47,10 @@ export default function Home() {
           <p className="mx-auto max-w-7xl px-5 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
             Built for people with something to share
           </p>
-          {/* Full-bleed on purpose — the marquee's edge fade needs to run to the
+          {/* Full-bleed on purpose — the ticker's edge fade needs to run to the
               viewport edges, not stop at the container. */}
           <div className="mt-8">
-            <AudienceMarquee />
+            <AudienceTicker />
           </div>
         </div>
       </section>
