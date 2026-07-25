@@ -46,14 +46,18 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-0 z-50">
-      {/* Announcement bar — always pinned, never hides */}
+      {/* Announcement bar — always pinned, never hides.
+          Deliberately a deep wine rather than full-strength brand pink: the hero
+          below already spends that accent on the selected phrase and the primary
+          CTA, and a third saturated pink band at the top of the page made all
+          three fight each other. This keeps the colour identity while letting the
+          CTA stay the loudest thing on screen. */}
       <Link
         href="/blog"
-        className="relative block overflow-hidden bg-gradient-to-r from-[#4c0e22] via-[#F5124A] to-[#7a1130] text-center text-white"
+        className="relative block overflow-hidden bg-gradient-to-r from-[#1b0a11] via-[#4a1023] to-[#1b0a11] text-center text-white"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_120%_at_50%_0%,rgba(255,255,255,0.18),transparent_70%)]" />
-        <div className="relative mx-auto flex max-w-7xl items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium">
-          <span className="hidden rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide sm:inline">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-center gap-2.5 px-5 py-2.5 text-sm text-white/85">
+          <span className="hidden rounded-full bg-[#F5124A] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white sm:inline">
             New
           </span>
           Connect your own custom domain in one click

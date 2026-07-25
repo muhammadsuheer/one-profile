@@ -23,12 +23,16 @@ import { SURFACE } from './tokens'
  * headline, copy and CTA are in the initial HTML and their reveal is pure CSS —
  * nothing that matters waits for hydration.
  *
- * Heights are kept deliberately tight so the CTA lands inside the first
- * viewport on a laptop: the sticky header above already costs ~106px, so the
- * hero targets ~510px of its own (min-h 480 + py-14) rather than filling the
- * screen. The corner cards are absolutely positioned and only render at lg,
- * where the side margins are wide enough that they can't collide with the
- * centred column.
+ * Spacing follows the reference closely, because that's what makes the scene
+ * feel composed rather than crowded: the copy column is deliberately narrow
+ * (~40% of the frame) so wide side margins open up for the cursors and cards,
+ * and the gaps between headline, copy and CTA are large — roughly 0.9em and
+ * 1.0em of the headline size. Widening the copy is what previously made
+ * everything feel cramped and pushed the cursors onto the cards.
+ *
+ * The CTA still lands inside the first viewport on a laptop (the sticky header
+ * above costs ~106px), but the cards are allowed to run past the fold, which is
+ * what invites the scroll.
  */
 export default function Hero() {
   return (
@@ -38,24 +42,25 @@ export default function Hero() {
     >
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[420px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[500px] lg:py-14">
+      <section className="relative mx-auto flex min-h-[520px] max-w-7xl flex-col items-center justify-center px-5 py-16 lg:min-h-[620px] lg:py-20">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">
           <HeroHeadline />
         </Reveal>
 
-        {/* Copy deliberately avoids a dash: at this width the previous wording
-            wrapped so the second line opened with an em dash, which reads as a
-            typo. */}
-        <Reveal delay={120} className="relative z-0 mt-6">
-          <p className="mx-auto max-w-xl text-center text-[17px] leading-relaxed text-white/55">
-            Everything from links and videos to email capture and real analytics,
-            built from blocks you can drag into place.
+        {/* max-w-lg, not max-w-xl: a narrow measure is what leaves room for the
+            cursors and cards in the margins. Two sentences rather than a dash —
+            at this width a dash ended up opening the second line, which reads
+            as a typo. */}
+        <Reveal delay={120} className="relative z-0 mt-14">
+          <p className="mx-auto max-w-lg text-center text-lg leading-relaxed text-white/55">
+            Links, videos, email capture and real analytics. All from blocks you
+            drag into place.
           </p>
         </Reveal>
 
-        <Reveal delay={220} className="relative z-0 mt-8">
+        <Reveal delay={220} className="relative z-0 mt-14">
           <HeroActions />
         </Reveal>
 

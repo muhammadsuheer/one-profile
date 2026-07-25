@@ -94,16 +94,20 @@ body {
 
 /*
  * Hero backdrop: three equal columns drawn as a repeating 1px line, framed by
- * the container's own left/right borders. Fades only at the top and bottom so
- * the lines stay crisp through the middle instead of washing out.
+ * the container's own left/right borders.
+ *
+ * The lines run at full strength from the very top — they should read as a
+ * continuation of the navbar's bottom border, so fading them in leaves the top
+ * of the hero looking unframed. Only the bottom fades, so they dissolve into the
+ * next section instead of stopping on a hard edge.
  */
 .hero-grid {
-  background-image: linear-gradient(to right, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgb(255 255 255 / 0.09) 1px, transparent 1px);
   background-size: 33.3333% 100%;
   background-position: 33.3333% 0;
   background-repeat: repeat-x;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent);
 }
 
 /* Respect reduced-motion. */

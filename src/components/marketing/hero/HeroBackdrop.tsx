@@ -11,7 +11,7 @@ export default function HeroBackdrop() {
     <>
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="mx-auto h-full max-w-7xl px-5">
-          <div className="hero-grid h-full border-x border-white/[0.07]" />
+          <div className="hero-grid h-full border-x border-white/[0.09]" />
         </div>
       </div>
 
