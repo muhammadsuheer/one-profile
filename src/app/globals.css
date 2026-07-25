@@ -49,6 +49,39 @@ body {
   animation: fp-reveal-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/*
+ * Continuously scrolling marquee.
+ *
+ * The track holds two identical copies of its content and slides by exactly
+ * -50%, so the second copy lands where the first began and the reset is
+ * invisible. A literal transform, not Tailwind's translate utilities: those
+ * compile to `translate: var(--tw-translate-*)` and untyped custom properties
+ * don't interpolate. The edge mask fades items in and out instead of clipping
+ * them against a hard border.
+ */
+@keyframes fp-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.fp-marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+
+.fp-marquee-track {
+  animation: fp-marquee 46s linear infinite;
+  will-change: transform;
+}
+
+.fp-marquee:hover .fp-marquee-track {
+  animation-play-state: paused;
+}
+
 /* Entrance for each message in the rotating announcement strip. */
 @keyframes fp-announce-in {
   from {
@@ -137,7 +170,8 @@ body {
 /* Respect reduced-motion. */
 @media (prefers-reduced-motion: reduce) {
   .fp-reveal,
-  .fp-announce {
+  .fp-announce,
+  .fp-marquee-track {
     animation: none !important;
     opacity: 1;
     transform: none;

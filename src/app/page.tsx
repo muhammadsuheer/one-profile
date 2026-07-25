@@ -7,25 +7,11 @@ import {
   Globe,
   Video,
   ArrowRight,
-  Music,
-  Mic,
-  HeartHandshake,
-  Rocket,
-  Brush,
-  PenLine,
 } from 'lucide-react'
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
 import Hero from '@/components/marketing/hero'
-
-const AUDIENCES = [
-  { icon: Music, label: 'Musicians' },
-  { icon: Mic, label: 'Podcasters' },
-  { icon: HeartHandshake, label: 'Coaches' },
-  { icon: Rocket, label: 'Founders' },
-  { icon: Brush, label: 'Artists' },
-  { icon: PenLine, label: 'Writers' },
-]
+import AudienceMarquee from '@/components/marketing/AudienceMarquee'
 
 const FEATURES = [
   { icon: Blocks, title: 'Block-based editor', body: 'Drag, drop and reorder blocks. Links, video, galleries, products and more.' },
@@ -57,20 +43,14 @@ export default function Home() {
           product is built for rather than who "loves" it, since we can't stand
           behind a testimonial claim. */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-5 pb-16 pt-4">
-          <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
+        <div className="pb-16 pt-4">
+          <p className="mx-auto max-w-7xl px-5 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
             Built for people with something to share
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-3">
-            {AUDIENCES.map(({ icon: Icon, label }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:border-white/15 hover:text-white/85"
-              >
-                <Icon className="h-4 w-4 text-[#F5124A]/70" />
-                {label}
-              </span>
-            ))}
+          {/* Full-bleed on purpose — the marquee's edge fade needs to run to the
+              viewport edges, not stop at the container. */}
+          <div className="mt-8">
+            <AudienceMarquee />
           </div>
         </div>
       </section>
