@@ -15,21 +15,22 @@ const NAV = [
 ]
 
 /**
- * Marketing navbar. The announcement strip always stays pinned at the very
- * top; the nav row below it hides on scroll-down and reappears on scroll-up
- * (a standard "auto-hide" header) so it never eats screen space while reading,
- * but is always one upward scroll away.
+ * Marketing navbar: an announcement strip above a nav row.
  *
- * The two rows are explicitly layered, and that matters: the nav row hides by
- * translating up by its own height, so it has to pass *behind* the announcement
- * strip. Without the z-index it painted on top instead (it comes later in the
- * DOM), and hiding it slid the whole row over the strip and off the top of the
- * viewport — the nav appeared sliced in half with the announcement gone.
+ * Both rows behave as one unit — the whole thing hides on scroll-down and comes
+ * back on scroll-up, so nothing is pinned to the top while reading. Because they
+ * move together, the sticky wrapper itself carries the transform; translating
+ * only the nav row (an earlier version) meant it had to pass behind the strip,
+ * which needed explicit layering and slid the row off the top of the viewport
+ * when it got that wrong.
+ *
+ * Hiding is suppressed while the mobile menu is open, so an open menu can't be
+ * dragged off-screen by a scroll.
  */
 export default function Navbar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [navHidden, setNavHidden] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const lastY = useRef(0)
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function Navbar() {
       const y = window.scrollY
       const goingDown = y > lastY.current
       const pastThreshold = y > 96 // don't hide while still near the top
-      setNavHidden(goingDown && pastThreshold)
+      setHidden(goingDown && pastThreshold)
       lastY.current = y
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -52,16 +53,14 @@ export default function Navbar() {
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href))
 
   return (
-    <div className="sticky top-0 z-50">
-      {/* Always pinned, never hides — see the layering note above. */}
+    <div
+      className={`sticky top-0 z-50 transition-transform duration-300 ease-out ${
+        hidden && !open ? '-translate-y-full' : 'translate-y-0'
+      }`}
+    >
       <AnnouncementBar />
 
-      {/* Nav bar — auto-hides on scroll-down, reappears on scroll-up */}
-      <header
-        className={`relative z-10 border-b border-white/10 bg-[#0A0A0B] text-white transition-transform duration-300 ease-out ${
-          navHidden ? '-translate-y-full' : 'translate-y-0'
-        }`}
-      >
+      <header className="border-b border-white/10 bg-[#0A0A0B] text-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2">

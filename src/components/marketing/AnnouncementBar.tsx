@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 
 /**
- * The pinned strip above the navbar, cycling through a few things worth
- * knowing about.
+ * The strip above the nav row, cycling through a few things worth knowing about.
+ * It scrolls away with the rest of the header rather than staying pinned.
  *
  * The row has a fixed height and the message is centred inside it, so swapping
  * messages never shifts the page. The active message is keyed by index, which
@@ -40,7 +40,7 @@ export default function AnnouncementBar() {
   return (
     <Link
       href={item.href}
-      className="group relative z-20 block overflow-hidden border-b border-white/[0.06] bg-gradient-to-r from-[#180910] via-[#4a1023] to-[#180910]"
+      className="group relative block overflow-hidden border-b border-white/[0.06] bg-gradient-to-r from-[#180910] via-[#4a1023] to-[#180910]"
     >
       {/* soft highlight so the band reads as lit from above rather than flat */}
       <span
