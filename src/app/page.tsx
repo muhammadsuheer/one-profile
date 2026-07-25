@@ -49,13 +49,15 @@ export default function Home() {
       <Hero />
 
       {/* Who it's for.
-          No background of its own, so it reads as a quiet continuation of the
-          hero rather than a second slab. The eyebrow used to name the same four
-          audiences the row below listed, which was pure repetition — it now sets
-          up the row instead. Framed as who the product is built for rather than
-          who "loves" it: we can't stand behind a testimonial claim. */}
+          No background and no top border, so this and the hero read as one
+          continuous field — the reference runs its hero straight into its logo
+          row the same way, and a border here put a hard seam right under the CTA.
+          The eyebrow used to name the same four audiences the row below listed,
+          which was pure repetition; it sets up the row instead. Framed as who the
+          product is built for rather than who "loves" it, since we can't stand
+          behind a testimonial claim. */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-5 py-14">
+        <div className="mx-auto max-w-7xl px-5 pb-16 pt-4">
           <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
             Built for people with something to share
           </p>

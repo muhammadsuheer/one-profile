@@ -91,7 +91,7 @@ body {
   --fp-descender: 0.21; /* ~430/2048 — bottom of a lowercase p/g */
 
   /* must match the headline's leading (see HeroHeadline) */
-  --fp-lead: 1.5;
+  --fp-lead: 1.4;
 
   /*
    * Padding is intentionally uneven. Equal values above the x-height and below

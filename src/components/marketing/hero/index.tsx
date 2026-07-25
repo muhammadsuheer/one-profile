@@ -23,38 +23,42 @@ import { SURFACE } from './tokens'
  * headline, copy and CTA are in the initial HTML and their reveal is pure CSS —
  * nothing that matters waits for hydration.
  *
- * Spacing follows the reference closely, because that's what makes the scene
- * feel composed rather than crowded: the copy column is deliberately narrow
- * (~40% of the frame) so wide side margins open up for the cursors and cards,
- * and the gaps between headline, copy and CTA are large — roughly 0.9em and
- * 1.0em of the headline size. Widening the copy is what previously made
- * everything feel cramped and pushed the cursors onto the cards.
+ * Two rules keep the scene from reading as a pile, both taken from the
+ * reference:
  *
- * The CTA still lands inside the first viewport on a laptop (the sticky header
- * above costs ~106px), but the cards are allowed to run past the fold, which is
- * what invites the scroll.
+ * 1. A narrow copy column (~half the frame) so the side margins are genuinely
+ *    wide. Widening it is what previously squeezed the cursors and cards
+ *    together.
+ * 2. A horizontal split: cursors occupy the upper band, cards the lower one,
+ *    with a clear gap between. The cards used to be pinned to the bottom
+ *    corners while cursors sat mid-height, so both competed for the same strip.
+ *    The cards are staggered rather than level, which reads as more incidental.
+ *
+ * There's no bottom border, and the background matches the page: the hero and
+ * the audience strip below it should read as one continuous field, the way the
+ * reference runs its hero straight into its logo row.
+ *
+ * The CTA lands inside the first viewport on a laptop (the sticky header above
+ * costs ~108px); the cards may run past the fold, which is what invites scroll.
  */
 export default function Hero() {
   return (
-    <div
-      className="relative overflow-hidden border-b border-white/10"
-      style={{ backgroundColor: SURFACE }}
-    >
+    <div className="relative overflow-hidden" style={{ backgroundColor: SURFACE }}>
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[460px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[540px] lg:py-14">
+      <section className="relative mx-auto flex min-h-[440px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[500px] lg:py-14">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">
           <HeroHeadline />
         </Reveal>
 
-        {/* max-w-lg, not max-w-xl: a narrow measure is what leaves room for the
-            cursors and cards in the margins. Two sentences rather than a dash —
-            at this width a dash ended up opening the second line, which reads
-            as a typo. */}
-        <Reveal delay={120} className="relative z-0 mt-14">
-          <p className="mx-auto max-w-lg text-center text-lg leading-relaxed text-white/55">
+        {/* A deliberately narrow measure — this is what leaves room for the
+            cursors and cards in the margins. Two sentences rather than a dash:
+            at this width a dash ended up opening the second line, which reads as
+            a typo. */}
+        <Reveal delay={120} className="relative z-0 mt-11">
+          <p className="mx-auto max-w-md text-center text-[17px] leading-relaxed text-white/55">
             Links, videos, email capture and real analytics. All from blocks you
             drag into place.
           </p>
@@ -66,8 +70,9 @@ export default function Hero() {
           <HeroActions />
         </Reveal>
 
-        {/* corner cards — only where there's genuinely room for them */}
-        <Reveal delay={520} className="absolute bottom-8 left-5 z-10 hidden lg:block">
+        {/* Corner cards — the lower band, staggered so they don't read as a
+            matched pair, and only at lg where the margins are wide enough. */}
+        <Reveal delay={520} className="absolute bottom-16 left-5 z-10 hidden lg:block">
           <AgentCard />
         </Reveal>
         <Reveal delay={600} className="absolute bottom-8 right-5 z-10 hidden lg:block">

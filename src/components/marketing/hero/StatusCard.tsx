@@ -14,7 +14,7 @@ const BLOCKS = [
 export default function StatusCard() {
   return (
     <div
-      className="w-[19rem] rounded-xl border border-white/10 p-4 shadow-2xl backdrop-blur"
+      className="w-64 rounded-xl border border-white/10 p-3.5 shadow-2xl backdrop-blur"
       style={{ backgroundColor: `${CARD}e6` }}
     >
       <div className="font-mono text-xs font-semibold text-white">ava.foliopage.site</div>
