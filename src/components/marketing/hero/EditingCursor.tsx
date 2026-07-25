@@ -9,8 +9,11 @@ import { ACCENT } from './tokens'
  *
  * Its own tiny client component so the headline around it can stay a server
  * component. The drift offset is applied as `transform` from a rAF loop, which
- * is why the element's resting offset is a negative margin — a Tailwind
- * translate class would be overwritten every frame.
+ * is why the element's resting offset is a margin — a Tailwind translate class
+ * would be overwritten every frame. The offset is positive so the arrow tip
+ * sits just outside the box's corner; pulling it inward puts the tip on top of
+ * the border and the corner handle, which reads as clutter rather than as a
+ * pointer resting on the selection.
  */
 export default function EditingCursor() {
   const ref = useRef<HTMLSpanElement | null>(null)
@@ -36,7 +39,7 @@ export default function EditingCursor() {
   return (
     <span
       ref={ref}
-      className="absolute left-full top-full -ml-2.5 hidden select-none items-start sm:flex"
+      className="absolute left-full top-full ml-1 mt-1 hidden select-none items-start sm:flex"
       style={{ willChange: 'transform' }}
     >
       <svg

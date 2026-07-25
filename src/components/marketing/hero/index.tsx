@@ -38,17 +38,20 @@ export default function Hero() {
     >
       <HeroBackdrop />
 
-      <section className="relative mx-auto flex min-h-[460px] max-w-7xl flex-col items-center justify-center px-5 py-14 lg:min-h-[540px] lg:py-16">
+      <section className="relative mx-auto flex min-h-[420px] max-w-7xl flex-col items-center justify-center px-5 py-12 lg:min-h-[500px] lg:py-14">
         <CursorLayer />
 
         <Reveal className="relative z-0 w-full">
           <HeroHeadline />
         </Reveal>
 
+        {/* Copy deliberately avoids a dash: at this width the previous wording
+            wrapped so the second line opened with an em dash, which reads as a
+            typo. */}
         <Reveal delay={120} className="relative z-0 mt-6">
           <p className="mx-auto max-w-xl text-center text-[17px] leading-relaxed text-white/55">
-            Build a bio page that stays on brand, in your control, and ready to share —
-            links, videos, email capture and real analytics, all from blocks.
+            Everything from links and videos to email capture and real analytics,
+            built from blocks you can drag into place.
           </p>
         </Reveal>
 
