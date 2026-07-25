@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { motion, useMotionValue, useSpring } from 'motion/react'
+import { usePrefersReducedMotion } from '@/components/usePrefersReducedMotion'
 import CollabCursor from './CollabCursor'
 import { COLLABORATORS, type Collaborator } from './tokens'
 
@@ -27,13 +28,16 @@ import { COLLABORATORS, type Collaborator } from './tokens'
  * back to centre when the pointer leaves the hero, so they don't react to
  * movement further down the page.
  *
- * Nothing here reads `useReducedMotion()`. That hook returns `null` on the server
- * and a boolean on the client, so branching on it — a different tree, or even
- * different props — makes the two renders disagree and React reports a hydration
- * mismatch. `MotionConfig reducedMotion="user"` handles the preference instead.
+ * Under reduced motion the collaborators are rendered at their rest positions
+ * with no entrance, route or parallax. They still belong in the scene — four
+ * people around a document reads perfectly well as a still image — they just
+ * don't move. The preference comes from `usePrefersReducedMotion` rather than
+ * Motion's own hook, which resolves the query during the first client render and
+ * so can't be branched on without a hydration mismatch.
  */
 export default function CursorLayer() {
   const layerRef = useRef<HTMLDivElement | null>(null)
+  const reduceMotion = usePrefersReducedMotion()
 
   const pointerX = useMotionValue(0)
   const pointerY = useMotionValue(0)
@@ -42,7 +46,7 @@ export default function CursorLayer() {
 
   useEffect(() => {
     const layer = layerRef.current
-    if (!layer) return
+    if (!layer || reduceMotion) return
 
     const onMouseMove = (e: MouseEvent) => {
       const rect = layer.getBoundingClientRect()
@@ -57,7 +61,7 @@ export default function CursorLayer() {
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', onMouseMove)
-  }, [pointerX, pointerY])
+  }, [pointerX, pointerY, reduceMotion])
 
   return (
     <div ref={layerRef} className="pointer-events-none absolute inset-0 z-10 hidden sm:block" aria-hidden>
@@ -67,9 +71,18 @@ export default function CursorLayer() {
           className="absolute"
           style={{ top: collaborator.top, left: collaborator.left }}
         >
-          <motion.div style={{ x: parallaxX, y: parallaxY }}>
-            <Cursor collaborator={collaborator} />
-          </motion.div>
+          {reduceMotion ? (
+            <CollabCursor
+              name={collaborator.name}
+              role={collaborator.role}
+              color={collaborator.color}
+              facing={collaborator.facing}
+            />
+          ) : (
+            <motion.div style={{ x: parallaxX, y: parallaxY }}>
+              <Cursor collaborator={collaborator} />
+            </motion.div>
+          )}
         </div>
       ))}
     </div>

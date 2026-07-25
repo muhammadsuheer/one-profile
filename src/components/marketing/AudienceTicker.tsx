@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
+import { usePrefersReducedMotion } from '@/components/usePrefersReducedMotion'
 import {
   Music,
   Mic,
@@ -70,22 +71,7 @@ const SPEED = 46
 export default function AudienceTicker() {
   const trackRef = useRef<HTMLDivElement>(null)
   const [copyWidth, setCopyWidth] = useState(0)
-
-  /*
-   * A continuously scrolling row is the textbook thing to stop for someone who
-   * has asked for reduced motion, and MotionConfig already suppresses the
-   * animation for them. But suppressing it makes Motion apply the *target*
-   * immediately, which parks the track a full copy-width to the left — the row
-   * renders mid-list with the first item sliced off, looking broken rather than
-   * intentionally still. Skipping the animation outright leaves it at rest.
-   *
-   * Reading the preference is safe here despite it differing between server and
-   * client: `copyWidth` is 0 until an effect measures it, so `animate` is
-   * undefined on both the server and the first client render either way, and
-   * there's nothing for hydration to disagree about.
-   */
-  const reduceMotion = useReducedMotion()
-  const animating = copyWidth > 0 && !reduceMotion
+  const reduceMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     const track = trackRef.current
@@ -105,6 +91,29 @@ export default function AudienceTicker() {
     return () => observer.disconnect()
   }, [])
 
+  /*
+   * Reduced motion gets a different component, not a stopped one. A continuously
+   * scrolling row is exactly what the preference is asking us not to do, but
+   * simply halting it leaves a row clipped at both ends mid-item, which looks
+   * broken. A centred, wrapped list carries the same information and looks like
+   * it was designed that way.
+   */
+  if (reduceMotion) {
+    return (
+      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-5">
+        {AUDIENCES.map(({ icon: Icon, label }) => (
+          <span
+            key={label}
+            className="inline-flex items-center gap-2.5 whitespace-nowrap text-sm font-medium text-white/35"
+          >
+            <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
+            {label}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div
       className="flex overflow-hidden"
@@ -118,7 +127,7 @@ export default function AudienceTicker() {
         // w-max and shrink-0 keep the track sized by its content; as a flex item
         // it would otherwise be free to shrink toward the container's width.
         className="flex w-max shrink-0"
-        animate={animating ? { x: [0, -copyWidth] } : undefined}
+        animate={copyWidth ? { x: [0, -copyWidth] } : undefined}
         transition={{
           duration: copyWidth / SPEED,
           ease: 'linear',

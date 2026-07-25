@@ -3,18 +3,27 @@
 import { MotionConfig } from 'motion/react'
 
 /**
- * Wraps the app so Motion handles the reduced-motion preference itself.
+ * App-wide Motion configuration.
  *
- * This exists to avoid a class of hydration bug. `useReducedMotion()` returns
- * `null` on the server and a boolean on the client, so branching on it — either
- * returning a different tree or passing different props — makes the server and
- * the first client render disagree, and React reports a hydration mismatch.
+ * `reducedMotion="never"` looks like the wrong choice and isn't. The alternative,
+ * `"user"`, is a global killswitch: it suppresses every transform animation in the
+ * app at once for anyone with the preference set. Worse, suppressing an in-flight
+ * animation makes Motion apply its *target* immediately, so elements land wherever
+ * they were heading — the ticker parked a full copy-width off to one side, showing
+ * a row sliced through the middle of an item. That reads as broken rather than as
+ * still, and it's a lot of visitors to show a broken page to: plenty of people turn
+ * Windows animation effects off for performance without ever thinking of it as an
+ * accessibility setting.
  *
- * `reducedMotion="user"` moves the decision inside Motion: the same tree renders
- * on both sides, and Motion skips transform and layout animations when the user
- * has asked for reduced motion, keeping opacity and colour changes. So nothing in
- * here needs to read the preference itself.
+ * So Motion doesn't decide. Each animation handles the preference itself through
+ * `usePrefersReducedMotion` and picks a genuinely static presentation instead of a
+ * frozen one — reduce, don't remove. The ticker becomes a wrapped static list, the
+ * collaborators sit at their rest positions, entrance animations fade without
+ * travelling.
+ *
+ * Anything added here that animates has to make that choice deliberately. There is
+ * no safety net above it.
  */
 export default function MotionProvider({ children }: { children: React.ReactNode }) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>
+  return <MotionConfig reducedMotion="never">{children}</MotionConfig>
 }
