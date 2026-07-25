@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import { usePrefersReducedMotion } from '@/components/usePrefersReducedMotion'
 import {
   Music,
   Mic,
@@ -71,7 +70,6 @@ const SPEED = 46
 export default function AudienceTicker() {
   const trackRef = useRef<HTMLDivElement>(null)
   const [copyWidth, setCopyWidth] = useState(0)
-  const reduceMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     const track = trackRef.current
@@ -90,29 +88,6 @@ export default function AudienceTicker() {
     observer.observe(track)
     return () => observer.disconnect()
   }, [])
-
-  /*
-   * Reduced motion gets a different component, not a stopped one. A continuously
-   * scrolling row is exactly what the preference is asking us not to do, but
-   * simply halting it leaves a row clipped at both ends mid-item, which looks
-   * broken. A centred, wrapped list carries the same information and looks like
-   * it was designed that way.
-   */
-  if (reduceMotion) {
-    return (
-      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-5">
-        {AUDIENCES.map(({ icon: Icon, label }) => (
-          <span
-            key={label}
-            className="inline-flex items-center gap-2.5 whitespace-nowrap text-sm font-medium text-white/35"
-          >
-            <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
-            {label}
-          </span>
-        ))}
-      </div>
-    )
-  }
 
   return (
     <div

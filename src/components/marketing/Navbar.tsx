@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
-import { usePrefersReducedMotion } from '@/components/usePrefersReducedMotion'
 import AnnouncementBar from './AnnouncementBar'
 
 const NAV = [
@@ -44,7 +43,6 @@ export default function Navbar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [hidden, setHidden] = useState(false)
-  const reduceMotion = usePrefersReducedMotion()
   const lastY = useRef(0)
 
   useEffect(() => {
@@ -79,13 +77,7 @@ export default function Navbar() {
     <motion.div
       className="sticky top-0 z-50"
       animate={{ y: hidden && !open ? '-100%' : '0%' }}
-      // Reduced motion gets the same behaviour without the travel: the header
-      // still gets out of the way, it just cuts instead of sliding.
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { type: 'spring', stiffness: 380, damping: 34, mass: 0.9 }
-      }
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.9 }}
     >
       <AnnouncementBar />
 

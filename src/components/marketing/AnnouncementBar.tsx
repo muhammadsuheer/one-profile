@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight } from 'lucide-react'
 
 /**
@@ -29,13 +29,11 @@ const ROTATE_MS = 5200
 
 export default function AnnouncementBar() {
   const [index, setIndex] = useState(0)
-  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    if (reduceMotion) return
     const id = setInterval(() => setIndex((v) => (v + 1) % ANNOUNCEMENTS.length), ROTATE_MS)
     return () => clearInterval(id)
-  }, [reduceMotion])
+  }, [])
 
   const item = ANNOUNCEMENTS[index]
 
@@ -59,12 +57,18 @@ export default function AnnouncementBar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            whileHover="nudge"
           >
             <span className="hidden rounded-full bg-[#F5124A] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white sm:inline">
               {item.tag}
             </span>
             <span className="truncate">{item.text}</span>
-            <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5" />
+            {/* Motion, not `group-hover:translate-x-*`: Tailwind's translate
+                utilities go through custom properties declared `syntax: "*"`,
+                which don't interpolate, so the nudge jumped rather than eased. */}
+            <motion.span variants={{ nudge: { x: 3 } }} transition={{ type: 'spring', stiffness: 500, damping: 28 }}>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+            </motion.span>
           </motion.span>
         </AnimatePresence>
       </div>
