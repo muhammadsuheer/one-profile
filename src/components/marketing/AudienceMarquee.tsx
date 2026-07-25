@@ -16,17 +16,19 @@ import {
 /**
  * The "who it's for" row, as a continuously scrolling marquee.
  *
- * Seamlessness depends on one structural detail: the track holds exactly two
- * identical copies of the list and slides by -50%, so at the end of a cycle the
- * second copy sits precisely where the first started and the jump back to 0 is
- * invisible. The spacing lives on each list (`gap` plus a matching `pr`) rather
- * than on the track — a gap *between* the two copies would make each half a gap
- * wider than the shift, and the loop would visibly stutter once per cycle.
+ * Two identical copies of the list sit side by side, and *each* animates by
+ * -100% of its own width (see `.fp-marquee-group` in globals.css). When the
+ * first has travelled its own width the second occupies where the first began,
+ * so the reset is invisible. An earlier version slid a shared track by -50%
+ * instead; that's equivalent on paper but makes the percentage depend on the
+ * parent resolving `width: max-content` first, and it didn't reliably run.
+ *
+ * The spacing lives on each list (`gap` plus a matching `pr`) rather than on the
+ * container — without the trailing padding the two copies would butt together
+ * one gap short, and the loop would visibly stutter once per cycle.
  *
  * The animation is CSS, so this stays a server component and the row scrolls
- * without waiting on hydration. It uses a literal transform in the keyframes,
- * not Tailwind's translate utilities: those compile to `translate:
- * var(--tw-translate-*)`, and untyped custom properties don't interpolate.
+ * without waiting on hydration.
  *
  * The second copy is aria-hidden so the list is announced once, and the whole
  * row pauses on hover.
@@ -55,24 +57,25 @@ const AUDIENCES = [
 
 export default function AudienceMarquee() {
   return (
-    <div className="fp-marquee overflow-hidden">
-      <div className="fp-marquee-track flex w-max">
-        <AudienceList />
-        <AudienceList duplicate />
-      </div>
+    <div className="fp-marquee">
+      <AudienceList />
+      <AudienceList duplicate />
     </div>
   )
 }
 
 function AudienceList({ duplicate }: { duplicate?: boolean }) {
   return (
-    // The gap and the trailing padding must match, so the two copies are
-    // separated by exactly one gap and the -50% slide stays seamless.
-    <ul className="flex shrink-0 items-center gap-12 pr-12" aria-hidden={duplicate || undefined}>
+    // The trailing padding must match the gap, so the two copies stay exactly
+    // one gap apart and the loop doesn't jump.
+    <ul
+      className="fp-marquee-group flex items-center gap-12 pr-12"
+      aria-hidden={duplicate || undefined}
+    >
       {AUDIENCES.map(({ icon: Icon, label }) => (
         <li
           key={label}
-          className="inline-flex shrink-0 items-center gap-2.5 text-sm font-medium text-white/35 transition-colors hover:text-white/70"
+          className="inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm font-medium text-white/35 transition-colors hover:text-white/70"
         >
           <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
           {label}

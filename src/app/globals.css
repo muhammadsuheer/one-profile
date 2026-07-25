@@ -52,33 +52,44 @@ body {
 /*
  * Continuously scrolling marquee.
  *
- * The track holds two identical copies of its content and slides by exactly
- * -50%, so the second copy lands where the first began and the reset is
- * invisible. A literal transform, not Tailwind's translate utilities: those
- * compile to `translate: var(--tw-translate-*)` and untyped custom properties
- * don't interpolate. The edge mask fades items in and out instead of clipping
- * them against a hard border.
+ * Each group animates independently by -100% of its *own* width, rather than a
+ * shared track sliding -50% of itself. Both are seamless in theory, but this one
+ * doesn't depend on the parent resolving `width: max-content` before the
+ * percentage can be computed — a percentage translate resolves against the
+ * element's own box, so each group only needs to know its own size. That makes
+ * it the version that reliably runs.
+ *
+ * Why it loops invisibly: two identical groups sit side by side. When the first
+ * has travelled exactly its own width, the second occupies the position the
+ * first started from, so resetting to 0 is undetectable.
+ *
+ * Literal transforms in the keyframes, not Tailwind's translate utilities —
+ * those compile to `translate: var(--tw-translate-*)`, and those custom
+ * properties are declared `syntax: "*"`, which is not interpolatable.
  */
 @keyframes fp-marquee {
   from {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
 .fp-marquee {
+  display: flex;
+  overflow: hidden;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
   mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
 }
 
-.fp-marquee-track {
-  animation: fp-marquee 46s linear infinite;
+.fp-marquee-group {
+  flex-shrink: 0;
+  animation: fp-marquee 32s linear infinite;
   will-change: transform;
 }
 
-.fp-marquee:hover .fp-marquee-track {
+.fp-marquee:hover .fp-marquee-group {
   animation-play-state: paused;
 }
 
@@ -167,21 +178,37 @@ body {
   mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent);
 }
 
-/* Respect reduced-motion. */
+/*
+ * Respect reduced-motion, per animation rather than with a blanket rule.
+ *
+ * A global `*, *::before, *::after { animation-duration: .01ms !important;
+ * transition-duration: .01ms !important }` used to live here. It's a common
+ * snippet but it's a sledgehammer: it also kills hover colour fades and every
+ * other harmless transition, and because it's `!important` it silently defeats
+ * inline styles too — which makes anything that looks "instant" very hard to
+ * trace back to a cause.
+ *
+ * Continuous or travelling motion is what actually needs suppressing here, so
+ * that's what's listed. The reveal keeps its fade and only loses the movement,
+ * following "reduce, don't remove".
+ */
 @media (prefers-reduced-motion: reduce) {
-  .fp-reveal,
-  .fp-announce,
-  .fp-marquee-track {
+  .fp-marquee-group,
+  .fp-announce {
     animation: none !important;
-    opacity: 1;
-    transform: none;
+    transform: none !important;
   }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .fp-reveal {
+    animation-name: fp-fade-in;
+  }
+}
+
+@keyframes fp-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
