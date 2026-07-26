@@ -59,9 +59,28 @@ if (!databaseUrl) throw new Error('DATABASE_URL is missing. Set it in .env.local
 const sql = neon(databaseUrl)
 const db = drizzle(sql, { schema })
 
-/** Deterministic stand-in photography, so the examples look like real pages. */
+/**
+ * Deterministic stand-in photography for galleries, products and banners — the
+ * places where a real page would carry a photo.
+ */
 const photo = (seed: string, w = 600, h = 600) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`
+
+/**
+ * Portrait for a persona, derived from the name so it's stable across re-seeds.
+ *
+ * An illustration rather than a photograph, deliberately. The obvious
+ * alternatives were both worse: a random photo service keyed on "…-portrait"
+ * returns scenery, and scenery in a circle where a face belongs looks like a bug;
+ * a stock-photo service would put a real person's face on an invented one.
+ *
+ * PNG rather than DiceBear's SVG endpoint, because rendering remote SVG through
+ * next/image needs `dangerouslyAllowSVG`, and turning that on across the whole
+ * app to style five avatars isn't a trade worth making.
+ */
+const avatar = (name: string) =>
+  `https://api.dicebear.com/9.x/notionists/png?seed=${encodeURIComponent(name)}` +
+  '&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf'
 
 function theme(preset: string, accentColor: string): ThemeConfig {
   return {
@@ -104,7 +123,7 @@ const EXAMPLES: Example[] = [
     blocks: [
       {
         type: 'profile',
-        avatarUrl: photo('mara-portrait', 400, 400),
+        avatarUrl: avatar('Mara Vance'),
         name: 'Mara Vance',
         badgeText: 'New EP out now',
         badgeIcon: 'sparkles',
@@ -164,7 +183,7 @@ const EXAMPLES: Example[] = [
     blocks: [
       {
         type: 'profile',
-        avatarUrl: photo('deniz-portrait', 400, 400),
+        avatarUrl: avatar('Deniz Kaya'),
         name: 'Deniz Kaya',
         badgeText: 'Taking 4 clients',
         badgeIcon: 'check',
@@ -245,7 +264,7 @@ const EXAMPLES: Example[] = [
     blocks: [
       {
         type: 'profile',
-        avatarUrl: photo('isabela-portrait', 400, 400),
+        avatarUrl: avatar('Isabela Rocha'),
         name: 'Isabela Rocha',
         tagline: 'Documentary photographer · São Paulo',
       },
@@ -309,7 +328,7 @@ const EXAMPLES: Example[] = [
     blocks: [
       {
         type: 'profile',
-        avatarUrl: photo('theo-portrait', 400, 400),
+        avatarUrl: avatar('Theo Aluko'),
         name: 'Theo Aluko',
         badgeText: 'Season 3 out now',
         badgeIcon: 'zap',
@@ -371,7 +390,7 @@ const EXAMPLES: Example[] = [
     blocks: [
       {
         type: 'profile',
-        avatarUrl: photo('priya-portrait', 400, 400),
+        avatarUrl: avatar('Priya Raman'),
         name: 'Priya Raman',
         badgeText: 'Building Ledgerly',
         badgeIcon: 'star',

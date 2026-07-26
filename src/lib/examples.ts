@@ -29,14 +29,22 @@ export type ExampleProfile = {
   highlight: string
   /** Block names, shown as chips. */
   blocks: string[]
-  /** Palette name, so the card can say the pages really do look different. */
+  /** Palette name, so the gallery can say the pages really do look different. */
   palette: string
   accent: string
+  /**
+   * The same portrait the seeded page shows, so the switcher and the page agree.
+   * Derived from the name by DiceBear — see `avatar()` in scripts/seed-examples.ts
+   * for why it's an illustration and why it's PNG.
+   */
+  avatar: string
 }
 
 export const EXAMPLE_PROFILES: ExampleProfile[] = [
   {
     slug: 'mara',
+    avatar:
+      'https://api.dicebear.com/9.x/notionists/png?seed=Mara%20Vance&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
     name: 'Mara Vance',
     field: 'Musician',
     icon: Music,
@@ -48,6 +56,8 @@ export const EXAMPLE_PROFILES: ExampleProfile[] = [
   },
   {
     slug: 'deniz',
+    avatar:
+      'https://api.dicebear.com/9.x/notionists/png?seed=Deniz%20Kaya&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
     name: 'Deniz Kaya',
     field: 'Coach',
     icon: Dumbbell,
@@ -59,6 +69,8 @@ export const EXAMPLE_PROFILES: ExampleProfile[] = [
   },
   {
     slug: 'isabela',
+    avatar:
+      'https://api.dicebear.com/9.x/notionists/png?seed=Isabela%20Rocha&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
     name: 'Isabela Rocha',
     field: 'Photographer',
     icon: Camera,
@@ -70,6 +82,8 @@ export const EXAMPLE_PROFILES: ExampleProfile[] = [
   },
   {
     slug: 'theo',
+    avatar:
+      'https://api.dicebear.com/9.x/notionists/png?seed=Theo%20Aluko&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
     name: 'Theo Aluko',
     field: 'Podcaster',
     icon: Mic,
@@ -81,6 +95,8 @@ export const EXAMPLE_PROFILES: ExampleProfile[] = [
   },
   {
     slug: 'priya',
+    avatar:
+      'https://api.dicebear.com/9.x/notionists/png?seed=Priya%20Raman&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
     name: 'Priya Raman',
     field: 'Founder',
     icon: Rocket,
