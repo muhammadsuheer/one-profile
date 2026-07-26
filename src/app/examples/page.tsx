@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ArrowUpRight, Blocks, Palette, Eye } from 'lucide-react'
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
-import { EXAMPLE_PROFILES } from '@/lib/examples'
+import ExampleBrowser from '@/components/marketing/ExampleBrowser'
 
 export const metadata: Metadata = {
   title: 'Examples',
@@ -16,12 +16,14 @@ export const metadata: Metadata = {
  *
  * Replaces a single "see a live example" link, which asked a visitor to imagine
  * their own field from someone else's page. Five pages across five fields answers
- * the actual question — "can it do the thing *I* need?" — and each card names the
- * blocks that page uses so the answer is visible before they click.
+ * the real question — "can it do the thing *I* need?"
  *
- * Every card is an outbound link to a genuinely published page, not a screenshot,
- * so what they see is the product rendering real content. The pages are seeded by
- * `scripts/seed-examples.ts`.
+ * The browsing itself lives in ExampleBrowser: pick a field, see that page render
+ * in place. An earlier version was a grid of cards that linked out, which meant
+ * comparing two examples took a round trip through the back button, and the page
+ * you landed on gave no hint the other four existed.
+ *
+ * The pages are real and published, seeded by `scripts/seed-examples.ts`.
  */
 export default function ExamplesPage() {
   return (
@@ -45,59 +47,7 @@ export default function ExamplesPage() {
 
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-5 py-16 lg:py-20">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {EXAMPLE_PROFILES.map((example) => (
-              <Link
-                key={example.slug}
-                href={`/${example.slug}`}
-                className="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
-              >
-                <div className="flex items-center justify-between">
-                  <span
-                    className="flex h-10 w-10 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: `${example.accent}1f`, color: example.accent }}
-                  >
-                    <example.icon className="h-5 w-5" />
-                  </span>
-                  <span className="text-xs font-medium uppercase tracking-wider text-white/35">
-                    {example.field}
-                  </span>
-                </div>
-
-                <h2 className="mt-5 text-lg font-semibold tracking-tight">{example.name}</h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/55">{example.summary}</p>
-
-                <p className="mt-4 border-l-2 pl-3 text-sm leading-relaxed text-white/70" style={{ borderColor: example.accent }}>
-                  {example.highlight}
-                </p>
-
-                <div className="mt-5 flex flex-wrap gap-1.5">
-                  {example.blocks.map((block) => (
-                    <span
-                      key={block}
-                      className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[11px] font-medium text-white/45"
-                    >
-                      {block}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-white/35">
-                    <Palette className="h-3.5 w-3.5" />
-                    {example.palette}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold"
-                    style={{ color: example.accent }}
-                  >
-                    Open page
-                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <ExampleBrowser />
         </div>
       </section>
 
