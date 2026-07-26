@@ -9,16 +9,19 @@ import { EXAMPLE_PROFILES } from '@/lib/examples'
 /**
  * The examples browser: pick a face, see that page render.
  *
- * The switcher is a row of portraits rather than a list of rows, and the preview
- * gets the width that frees up. Two earlier versions informed this: a grid of
- * cards that linked out — so comparing two examples took a round trip through the
- * back button — and then a column of description rows beside a narrow frame, which
- * spent most of the space explaining pages instead of showing them. The point of
- * this section is the page, so the page gets the room.
+ * Nothing here depends on hover, and that's the main thing about it. An earlier
+ * version put each person's name in a tooltip, which is fine with a mouse and
+ * broken on a phone: a tap both selected the person and flashed the tooltip, so
+ * the label appeared and vanished in the same gesture. Names are printed under the
+ * portraits permanently now. That's better on a desktop too — you can see who the
+ * five people are without probing them one at a time.
  *
- * The trade is that a bare portrait doesn't say whose page it is, which is what
- * the tooltip is for: name and field on hover or keyboard focus, so it works
- * without a pointer too.
+ * The preview doesn't take pointer events either. An iframe that scrolls steals
+ * the gesture: on a phone a finger that lands on the preview scrolls the preview
+ * rather than the page, and the wheel does the same on a desktop. So the frame is
+ * inert and the whole thing is a link — one obvious action, and no way to get
+ * stuck inside it. The top of a page is what's worth comparing at a glance anyway,
+ * and the full page is one tap away.
  *
  * The preview is an iframe of the real published page, not a screenshot. What's on
  * screen is genuinely the product rendering real content, and there's no second
@@ -29,47 +32,39 @@ import { EXAMPLE_PROFILES } from '@/lib/examples'
  * would need three Back presses to leave the page. Remounting replaces the frame
  * and leaves history alone.
  *
- * "Open full page" carries `?from=examples`, which is what lets that page offer a
+ * Links carry `?from=examples`, which is what lets the page they land on offer a
  * way back here — see BackToExamples.
  */
 export default function ExampleBrowser() {
   const [active, setActive] = useState(EXAMPLE_PROFILES[0])
-  const [hovered, setHovered] = useState<string | null>(null)
+  const fullPageHref = `/${active.slug}?from=examples`
 
   return (
     <div>
-      {/* Switcher */}
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+      {/* Switcher — names always visible, no hover required */}
+      <div className="flex flex-wrap items-start justify-center gap-x-3 gap-y-5 sm:gap-x-6">
         {EXAMPLE_PROFILES.map((example) => {
           const isActive = example.slug === active.slug
-          const showTip = hovered === example.slug
 
           return (
-            <div key={example.slug} className="relative">
-              <motion.button
-                type="button"
-                onClick={() => setActive(example)}
-                onMouseEnter={() => setHovered(example.slug)}
-                onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(example.slug)}
-                onBlur={() => setHovered(null)}
-                aria-pressed={isActive}
-                aria-label={`${example.name} — ${example.field}`}
-                whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-                className="relative block rounded-full focus-visible:outline-none"
-              >
-                {/* The same portrait the page itself shows, so the switcher and
-                    the preview are obviously the same person. */}
+            <motion.button
+              key={example.slug}
+              type="button"
+              onClick={() => setActive(example)}
+              aria-pressed={isActive}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 26 }}
+              className="group flex w-[4.5rem] flex-col items-center gap-2 rounded-xl focus-visible:outline-none sm:w-20"
+            >
+              <span className="relative block">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={example.avatar}
                   alt=""
                   width={56}
                   height={56}
-                  className={`h-14 w-14 rounded-full bg-white/5 object-cover transition-opacity ${
-                    isActive ? 'opacity-100' : 'opacity-60 hover:opacity-90'
+                  className={`h-12 w-12 rounded-full bg-white/5 object-cover transition-opacity sm:h-14 sm:w-14 ${
+                    isActive ? 'opacity-100' : 'opacity-55 group-hover:opacity-90'
                   }`}
                 />
                 {/* Ring travels between portraits rather than blinking on and off. */}
@@ -81,61 +76,63 @@ export default function ExampleBrowser() {
                     transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                   />
                 )}
-              </motion.button>
+              </span>
 
-              <AnimatePresence>
-                {showTip && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 4 }}
-                    transition={{ duration: 0.16 }}
-                    role="tooltip"
-                    className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-[#17171b] px-3 py-2 text-center shadow-2xl"
-                  >
-                    <span className="block text-xs font-semibold text-white">{example.name}</span>
-                    <span className="mt-0.5 block text-[11px] uppercase tracking-wider text-white/40">
-                      {example.field}
-                    </span>
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </div>
+              <span className="flex flex-col items-center leading-tight">
+                <span
+                  className={`text-[13px] font-semibold transition-colors ${
+                    isActive ? 'text-white' : 'text-white/45 group-hover:text-white/75'
+                  }`}
+                >
+                  {example.name.split(' ')[0]}
+                </span>
+                <span className="mt-0.5 text-[10px] uppercase tracking-wider text-white/30">
+                  {example.field}
+                </span>
+              </span>
+            </motion.button>
           )
         })}
       </div>
 
-      {/* Preview */}
+      {/* Preview — inert, and the whole frame opens the page */}
       <div className="mt-10">
-        <div className="mx-auto w-full max-w-[460px]">
-          <div className="rounded-[2.25rem] border border-white/10 bg-black p-3 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.95)]">
-            <div className="overflow-hidden rounded-[1.85rem] bg-[#0A0A0B]">
+        <Link
+          href={fullPageHref}
+          aria-label={`Open ${active.name}'s full page`}
+          className="group relative mx-auto block w-full max-w-[420px]"
+        >
+          <div className="rounded-[2.25rem] border border-white/10 bg-black p-2.5 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.95)] transition-colors group-hover:border-white/25 sm:p-3">
+            <div className="relative overflow-hidden rounded-[1.85rem] bg-[#0A0A0B]">
               <iframe
                 key={active.slug}
                 src={`/${active.slug}`}
                 title={`${active.name} — example page`}
                 loading="lazy"
-                className="block h-[720px] w-full border-0"
+                tabIndex={-1}
+                scrolling="no"
+                className="pointer-events-none block h-[520px] w-full border-0 sm:h-[680px]"
               />
+
+              {/* The page is taller than the frame, so the cut is faded rather than
+                  sliced — and the fade carries the affordance. */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/90 via-black/45 to-transparent pb-5 pt-20">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-3.5 py-1.5 text-xs font-semibold text-white/85 backdrop-blur">
+                  Open full page
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </span>
+              </div>
             </div>
           </div>
+        </Link>
 
-          <div className="mt-4 flex items-center justify-between px-1">
-            <span className="font-mono text-xs text-white/35">foliopage.site/{active.slug}</span>
-            <Link
-              href={`/${active.slug}?from=examples`}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold"
-              style={{ color: active.accent }}
-            >
-              Open full page
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
+        <p className="mt-3 text-center font-mono text-xs text-white/30">
+          foliopage.site/{active.slug}
+        </p>
       </div>
 
       {/* What's worth noticing about the page currently on screen. */}
-      <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-white/10 bg-white/[0.02] p-6">
+      <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={active.slug}
@@ -144,7 +141,7 @@ export default function ExampleBrowser() {
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex items-baseline gap-2">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <h3 className="font-semibold tracking-tight text-white">{active.name}</h3>
               <span className="text-xs uppercase tracking-wider text-white/35">{active.field}</span>
             </div>
@@ -168,7 +165,7 @@ export default function ExampleBrowser() {
               ))}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-white/10 pt-3 text-xs text-white/35">
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 pt-3 text-xs text-white/35">
               <span className="inline-flex items-center gap-1.5">
                 <Palette className="h-3.5 w-3.5" />
                 {active.palette}
@@ -178,6 +175,15 @@ export default function ExampleBrowser() {
                 Real view count on the page
               </span>
             </div>
+
+            <Link
+              href={fullPageHref}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.06em] text-white sm:w-auto"
+              style={{ backgroundColor: active.accent }}
+            >
+              Open {active.name.split(' ')[0]}&apos;s page
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </motion.div>
         </AnimatePresence>
       </div>
