@@ -6,9 +6,8 @@ import { getLifetimeViews } from '@/lib/analytics'
 import { parseThemeConfig, themeToCssVars } from '@/lib/theme'
 import { renderBlock } from '@/lib/blocks/registry'
 import { buildProfileJsonLd } from '@/lib/jsonld'
-import { Suspense } from 'react'
 import { Eye } from 'lucide-react'
-import BackToExamples from '@/components/marketing/BackToExamples'
+import ExampleNav from '@/components/marketing/ExampleNav'
 import { env } from '@/env'
 
 // ISR: pages are cached and revalidated at most every 60s (§8).
@@ -67,11 +66,9 @@ export default async function PublicPage({ params }: Params) {
 
   return (
     <div className="min-h-screen w-full bg-[var(--bg)] text-[var(--text)]" style={style}>
-      {/* Only shows for visitors arriving from the examples gallery. Suspense keeps
-          the page statically rendered despite the client-side param read. */}
-      <Suspense fallback={null}>
-        <BackToExamples />
-      </Suspense>
+      {/* Renders only on the five example pages — decided by the slug, so this
+          costs no client JS and doesn't affect static rendering. */}
+      <ExampleNav slug={data.site.slug} />
       {jsonLd && (
         <script
           type="application/ld+json"

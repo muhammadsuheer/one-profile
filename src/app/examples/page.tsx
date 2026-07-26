@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowUpRight, Blocks, Palette, Eye } from 'lucide-react'
@@ -47,7 +48,11 @@ export default function ExamplesPage() {
 
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-5 py-16 lg:py-20">
-          <ExampleBrowser />
+          {/* ExampleBrowser reads the selection from ?p=. The boundary is what keeps
+              this page statically rendered despite that. */}
+          <Suspense fallback={null}>
+            <ExampleBrowser />
+          </Suspense>
         </div>
       </section>
 

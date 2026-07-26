@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowUpRight, Eye, Palette } from 'lucide-react'
 import { EXAMPLE_PROFILES } from '@/lib/examples'
@@ -32,12 +32,28 @@ import { EXAMPLE_PROFILES } from '@/lib/examples'
  * would need three Back presses to leave the page. Remounting replaces the frame
  * and leaves history alone.
  *
- * Links carry `?from=examples`, which is what lets the page they land on offer a
- * way back here — see BackToExamples.
+ * The selection lives in the URL (`?p=<slug>`) rather than in component state,
+ * which is what makes coming back land where you left off. An example page's back
+ * link carries the slug, and so does the browser's own Back button once the
+ * selection has been written to the URL — with state, both routes reset to the
+ * first person and the visitor loses their place. It also makes a particular
+ * example linkable.
+ *
+ * `replace` rather than `push`, so clicking through five people doesn't leave five
+ * entries to unwind, and `scroll: false` so the page doesn't jump to the top on
+ * each pick.
  */
 export default function ExampleBrowser() {
-  const [active, setActive] = useState(EXAMPLE_PROFILES[0])
-  const fullPageHref = `/${active.slug}?from=examples`
+  const router = useRouter()
+  const params = useSearchParams()
+
+  const requested = params.get('p')
+  const active = EXAMPLE_PROFILES.find((e) => e.slug === requested) ?? EXAMPLE_PROFILES[0]
+  const fullPageHref = `/${active.slug}`
+
+  const select = (slug: string) => {
+    router.replace(`/examples?p=${slug}`, { scroll: false })
+  }
 
   return (
     <div>
@@ -50,7 +66,7 @@ export default function ExampleBrowser() {
             <motion.button
               key={example.slug}
               type="button"
-              onClick={() => setActive(example)}
+              onClick={() => select(example.slug)}
               aria-pressed={isActive}
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 500, damping: 26 }}

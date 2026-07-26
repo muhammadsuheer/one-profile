@@ -107,3 +107,21 @@ export const EXAMPLE_PROFILES: ExampleProfile[] = [
     accent: '#3B82F6',
   },
 ]
+
+/** The example with this slug, or undefined if the slug isn't one of ours. */
+export function getExampleBySlug(slug: string): ExampleProfile | undefined {
+  return EXAMPLE_PROFILES.find((e) => e.slug === slug)
+}
+
+/**
+ * The example after this one, wrapping around at the end.
+ *
+ * Wrapping rather than stopping is deliberate: someone paging through the examples
+ * should never hit a dead end and have to work out where to go next. Returns
+ * undefined only if the slug isn't an example at all.
+ */
+export function getNextExample(slug: string): ExampleProfile | undefined {
+  const i = EXAMPLE_PROFILES.findIndex((e) => e.slug === slug)
+  if (i === -1) return undefined
+  return EXAMPLE_PROFILES[(i + 1) % EXAMPLE_PROFILES.length]
+}
