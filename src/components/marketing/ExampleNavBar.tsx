@@ -50,7 +50,7 @@ export default function ExampleNavBar({
     <div className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/85 backdrop-blur">
       <div className="mx-auto flex max-w-[440px] items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
         <Link
-          href={`/examples?p=${currentSlug}`}
+          href={`/examples/${currentSlug}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface-hover)]"
         >
           <ArrowLeft className="h-4 w-4" />
