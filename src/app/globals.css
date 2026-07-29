@@ -76,21 +76,34 @@ body {
 }
 
 /*
- * Hero backdrop: three equal columns drawn as a repeating 1px line, framed by
- * the container's own left/right borders.
+ * Marketing backdrop: three equal columns drawn as a repeating 1px line, framed
+ * by the container's own left/right borders.
  *
  * The lines run at full strength from the very top — they should read as a
  * continuation of the navbar's bottom border, so fading them in leaves the top
- * of the hero looking unframed. Only the bottom fades, so they dissolve into the
- * next section instead of stopping on a hard edge.
+ * of the hero looking unframed.
+ *
+ * `.hero-grid` fades out at the bottom because the hero used to be the only
+ * thing standing on this grid, and the lines had to dissolve rather than stop on
+ * a hard edge. They don't stop any more: `.page-grid` carries the same three
+ * columns down the rest of the page, so the fade is gone and the hero's rules
+ * simply continue into the sections below. Same measurements in both — the
+ * columns have to line up across the seam or the whole effect falls apart.
  */
-.hero-grid {
+/*
+ * Position 0, not 33.3333%: with repeat-x, a percentage position phase-shifts the
+ * pattern by ⅓ × (box − tile) = 22.2%, so the lines landed at 22% / 55% / 89% —
+ * close enough to thirds to pass in the hero, and exactly wrong once section cells
+ * (grid-cols-3, rules at 33.3% / 66.6%) had to sit on them. At 0 each tile starts
+ * at a true third; the first line coincides with the left rail, which border-x
+ * already draws.
+ */
+.hero-grid,
+.page-grid {
   background-image: linear-gradient(to right, rgb(255 255 255 / 0.09) 1px, transparent 1px);
   background-size: 33.3333% 100%;
-  background-position: 33.3333% 0;
+  background-position: 0 0;
   background-repeat: repeat-x;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent);
 }
 
 /*

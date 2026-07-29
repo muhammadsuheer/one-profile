@@ -1,26 +1,12 @@
 import Link from 'next/link'
-import {
-  Blocks,
-  Palette,
-  BarChart3,
-  Mail,
-  Globe,
-  Video,
-  ArrowRight,
-} from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
 import Hero from '@/components/marketing/hero'
 import AudienceTicker from '@/components/marketing/AudienceTicker'
-
-const FEATURES = [
-  { icon: Blocks, title: 'Block-based editor', body: 'Drag, drop and reorder blocks. Links, video, galleries, products and more.' },
-  { icon: Palette, title: 'Themes that fit', body: '20 palettes, a custom accent color, fonts and button styles — live preview as you go.' },
-  { icon: BarChart3, title: 'Real analytics', body: 'Views, clicks, click-through rate, top links, devices and countries.' },
-  { icon: Mail, title: 'Grow your list', body: 'Capture emails right on your page and export subscribers to CSV anytime.' },
-  { icon: Video, title: 'Auto-updating feeds', body: 'Show your latest YouTube videos — refreshed automatically for you.' },
-  { icon: Globe, title: 'Your own domain', body: 'Connect a custom domain and remove branding on the Pro plan.' },
-]
+import JobTabs from '@/components/marketing/JobTabs'
+import WorksWith from '@/components/marketing/WorksWith'
+import { MonoCta, SectionHeader } from '@/components/marketing/section'
 
 const STEPS = [
   { n: '1', title: 'Create your page', body: 'Sign up and claim your unique URL in seconds.' },
@@ -34,6 +20,41 @@ export default function Home() {
       <Navbar />
       <Hero />
 
+      {/* Everything below the hero stands on the hero's own grid.
+          The three columns and the framing rules used to stop where the hero did,
+          which made the rest of the page read as a different surface bolted on
+          underneath. One backdrop for the whole run fixes that — same container
+          (max-w-7xl px-5) and the same 33.3% measurements as the hero, so the
+          lines cross the seam without a kink.
+
+          The sections themselves carry no background any more. They alternated
+          between #0A0A0B and #08080A, a two-value difference nobody could see,
+          and an opaque background would have covered these lines. What separates
+          them now is the horizontal rule each one already had, which is what makes
+          the whole thing read as a grid rather than as a stack. */}
+      <div className="relative">
+        {/* The backdrop is two layers, and the split is the point.
+
+            The column LINES sit under everything: content cells carry an opaque
+            background, so a line is visible only where a cell is genuinely empty —
+            never running through a paragraph or between the letters of a button.
+
+            The RAILS sit above everything (z-10, pointer-events-none): the edge
+            cells span the full content width, so their opaque backgrounds would
+            cover a rail drawn underneath, cutting the frame every time a band is
+            fully tiled. Drawing the rails on top keeps the frame unbroken — and
+            since every cell pads its content inward, the rails never touch text. */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <div className="mx-auto h-full max-w-7xl px-5">
+            <div className="page-grid h-full" />
+          </div>
+        </div>
+        <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+          <div className="mx-auto h-full max-w-7xl px-5">
+            <div className="h-full border-x border-white/[0.09]" />
+          </div>
+        </div>
+
       {/* Who it's for.
           No background and no top border, so this and the hero read as one
           continuous field — the reference runs its hero straight into its logo
@@ -42,10 +63,12 @@ export default function Home() {
           which was pure repetition; it sets up the row instead. Framed as who the
           product is built for rather than who "loves" it, since we can't stand
           behind a testimonial claim. */}
-      <section className="border-b border-white/10">
+      <section className="relative">
         <div className="pb-16 pt-4">
-          <p className="mx-auto max-w-7xl px-5 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/30">
-            Built for people with something to share
+          <p className="mx-auto max-w-7xl px-5 text-center font-mono text-xs font-medium uppercase tracking-[0.14em] text-white/30">
+            {/* The plate hugs the text so a column line can't run between its
+                letters on a narrow screen, while the band around it stays open. */}
+            <span className="bg-[#0A0A0B] px-4">Built for people with something to share</span>
           </p>
           {/* Full-bleed on purpose — the ticker's edge fade needs to run to the
               viewport edges, not stop at the container. */}
@@ -53,79 +76,77 @@ export default function Home() {
             <AudienceTicker />
           </div>
         </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="border-b border-white/10 bg-[#0A0A0B]">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:py-28">
-          <div className="max-w-2xl">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything your bio link should be
-            </h2>
-            <p className="mt-3 text-lg text-white/55">
-              Not just a list of links — a real page you control, with the tools to grow.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                className="group rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5124A]/10 text-[#F5124A]">
-                  <f.icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-5 font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/55">{f.body}</p>
-              </div>
-            ))}
-          </div>
+        {/* The section's bottom rule, clipped to the rails: a border on the
+            <section> would run the full viewport and cross the frame. */}
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="border-b border-white/10" />
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="border-b border-white/10 bg-[#08080A]">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:py-28">
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">Live in three steps</h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <div key={s.n} className="relative">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#F5124A]/30 bg-[#F5124A]/10 text-sm font-semibold text-[#F5124A]">
-                  {s.n}
+      {/* What the page is for.
+          This replaced a six-card feature grid that sat above it. The grid listed
+          capabilities in the abstract — "block-based editor", "real analytics" —
+          and this section shows three of them doing work, with the artwork to prove
+          it. Keeping both meant saying the same things twice, the weaker version
+          first. It carries the `features` id the footer links to. */}
+      <JobTabs />
+
+      {/* What it plugs into. Sits after the three jobs on purpose: "can it do the
+          thing I need?" comes first, "does it work with what I already have?"
+          second. */}
+      <WorksWith />
+
+      {/* How it works — a header band, then one cell per step, one step per
+          background column. */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="border-b border-white/10">
+            <SectionHeader
+              eyebrow="How it works"
+              title="Live in three steps."
+              titleMuted="About ten minutes."
+              body="No templates to fight and no code anywhere — claim your link, arrange your blocks, and publish when it looks right."
+            />
+            <div className="grid md:grid-cols-3">
+              {STEPS.map((s, i) => (
+                <div
+                  key={s.n}
+                  className={`bg-[#0A0A0B] px-6 py-10 lg:px-10 lg:py-12 ${
+                    i > 0 ? 'border-t border-white/10 md:border-l md:border-t-0' : ''
+                  }`}
+                >
+                  <p className="font-mono text-xs font-medium text-[#F5124A]">0{s.n}</p>
+                  <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/55">{s.body}</p>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/55">{s.body}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing teaser */}
-      <section className="border-b border-white/10 bg-[#0A0A0B]">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:py-28">
-          <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
-            <div className="max-w-xl">
-              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-                Start free. Upgrade when you grow.
-              </h2>
-              <p className="mt-3 text-lg text-white/55">
-                The Free plan gives you a full page and real analytics. Go Pro for unlimited sites,
-                every block, a custom domain and no branding.
-              </p>
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="border-b border-white/10 bg-[#0A0A0B] px-6 py-16 lg:px-10 lg:py-20">
+            <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+              <div className="max-w-xl">
+                <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+                  Start free. <span className="text-white/35">Upgrade when you grow.</span>
+                </h2>
+                <p className="mt-3 text-lg text-white/55">
+                  The Free plan gives you a full page and real analytics. Go Pro for unlimited
+                  sites, every block, a custom domain and no branding.
+                </p>
+              </div>
+              <MonoCta href="/pricing">See full pricing</MonoCta>
             </div>
-            <Link
-              href="/pricing"
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/15 px-6 py-3.5 text-sm font-semibold text-white/90 hover:bg-white/5"
-            >
-              See full pricing <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
         </div>
       </section>
 
       {/* CTA band */}
-      <section className="bg-[#08080A]">
+      <section className="relative">
         <div className="mx-auto max-w-7xl px-5 py-24">
           <div className="relative overflow-hidden rounded-3xl border border-[#F5124A]/20 bg-gradient-to-b from-[#1a0a12] to-[#0A0A0B] px-6 py-16 text-center">
             <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(245,18,74,0.22),transparent_60%)]" />
@@ -144,6 +165,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </div>
 
       <Footer />
     </div>
