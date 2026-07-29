@@ -20,6 +20,19 @@ import type { AdapterAccountType } from 'next-auth/adapters'
 import type { BlockData } from '@/lib/blocks/schemas'
 import type { ThemeConfig, SeoConfig } from '@/lib/theme'
 
+/**
+ * Editorial copy for a showcase page — the parts the gallery can't derive from the
+ * site itself.
+ */
+export type ExampleMeta = {
+  /** The field this page is an example of: "Musician", "Coach", … */
+  field: string
+  /** One line: what this page is doing for its owner. */
+  summary: string
+  /** The specific thing worth pointing a visitor at. */
+  highlight: string
+}
+
 /* ------------------------------------------------------------------ */
 /*  Auth.js (NextAuth v5) — Drizzle adapter tables.                    */
 /*  `users` is extended with app columns (passwordHash, plan, …).      */
@@ -117,6 +130,21 @@ export const sites = pgTable(
     isPublished: boolean('is_published').notNull().default(false),
     theme: jsonb('theme').$type<ThemeConfig>().notNull(),
     seo: jsonb('seo').$type<SeoConfig>(), // { title, description, ogImageUrl }
+    /*
+     * Marks a site as one of the showcase pages behind /examples.
+     *
+     * Kept on the site rather than in a hard-coded list in the app, so the
+     * gallery and the seed can't disagree about which pages are examples — and so
+     * adding one is a data change rather than a deploy.
+     */
+    isExample: boolean('is_example').notNull().default(false),
+    /*
+     * The editorial copy the gallery shows next to an example. Everything else it
+     * needs is already derivable — name and avatar from the profile block, palette
+     * and accent from `theme`, the block chips from the blocks themselves — but the
+     * field, the one-liner and the "what to notice" line are written, not derived.
+     */
+    exampleMeta: jsonb('example_meta').$type<ExampleMeta>(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({

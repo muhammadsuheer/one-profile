@@ -1,127 +1,134 @@
-import { Music, Dumbbell, Camera, Mic, Rocket, type LucideIcon } from 'lucide-react'
+import { and, asc, eq, inArray } from 'drizzle-orm'
+import { db } from '@/db'
+import { blocks, sites } from '@/db/schema'
+import { BLOCK_REGISTRY } from '@/lib/blocks/registry'
+import { getPalette, parseThemeConfig } from '@/lib/theme'
+import type { BlockData, BlockType } from '@/lib/blocks/schemas'
 
 /**
- * The example pages shown in the /examples gallery.
+ * The showcase pages behind /examples, read from the database.
  *
- * This is the shop window: someone deciding whether to sign up wants to see a
- * page in *their* field, not one generic demo. So there are five across five
- * fields, each on a different palette and using a different mix of blocks —
- * nothing here should look like the same template twice.
+ * This was a hard-coded array duplicating what the seed inserted — two lists kept
+ * in step by hand, which drifted. A site now carries `isExample` and
+ * `exampleMeta`, so the seed is the only place an example is defined and adding one
+ * is a data change rather than a deploy.
  *
- * The list is duplicated from `scripts/seed-examples.ts` on purpose rather than
- * derived from the database. The gallery is a marketing page: it needs to render
- * instantly and statically, and it shouldn't break or half-render if a seed
- * hasn't been run in an environment. `slug` is the contract between the two — the
- * gallery links out, and the seeded page is what a visitor lands on.
+ * Most of what the gallery shows is derived rather than stored: the name and avatar
+ * come from the page's own profile block, the palette and accent from its theme,
+ * and the chips from the blocks it actually has. Only `field`, `summary` and
+ * `highlight` are editorial, which is all `exampleMeta` holds. Deriving the rest
+ * means the gallery can't describe a page that isn't there — change a page's blocks
+ * and its chips follow.
  *
- * `blocks` and `highlight` are what actually sell it. A visitor skimming the
- * gallery is asking "can it do the thing I need?", so each card names the blocks
- * that page uses and the one thing it's doing well.
+ * Everything here returns empty rather than throwing when nothing is seeded. The
+ * gallery is a marketing page: an environment without the seed should render an
+ * honest empty state, not a 500.
  */
 export type ExampleProfile = {
   slug: string
   name: string
+  avatarUrl: string
   field: string
-  icon: LucideIcon
-  /** One line on the card — what this page is doing for its owner. */
   summary: string
-  /** The specific capability worth pointing at. */
   highlight: string
-  /** Block names, shown as chips. */
+  /** Human labels for the blocks this page uses, in page order. */
   blocks: string[]
-  /** Palette name, so the gallery can say the pages really do look different. */
+  /** Palette display name, e.g. "Plum". */
   palette: string
   accent: string
-  /**
-   * The same portrait the seeded page shows, so the switcher and the page agree.
-   * Derived from the name by DiceBear — see `avatar()` in scripts/seed-examples.ts
-   * for why it's an illustration and why it's PNG.
-   */
-  avatar: string
 }
 
-export const EXAMPLE_PROFILES: ExampleProfile[] = [
-  {
-    slug: 'mara',
-    avatar:
-      'https://api.dicebear.com/9.x/notionists/png?seed=Mara%20Vance&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-    name: 'Mara Vance',
-    field: 'Musician',
-    icon: Music,
-    summary: 'Releases, tour dates and a mailing list, all above the fold.',
-    highlight: 'Counts down to the next show, then flips itself to “we’re live”',
-    blocks: ['Profile', 'Socials', 'Countdown', 'Link', 'Product', 'Email capture'],
-    palette: 'Plum',
-    accent: '#A855F7',
-  },
-  {
-    slug: 'deniz',
-    avatar:
-      'https://api.dicebear.com/9.x/notionists/png?seed=Deniz%20Kaya&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-    name: 'Deniz Kaya',
-    field: 'Coach',
-    icon: Dumbbell,
-    summary: 'Sells a program, answers the objections, then books the client.',
-    highlight: 'A testimonial and an FAQ doing the work a sales page usually does',
-    blocks: ['Profile', 'Socials', 'Link', 'Product', 'Testimonial', 'FAQ', 'Email capture'],
-    palette: 'Forest',
-    accent: '#10B981',
-  },
-  {
-    slug: 'isabela',
-    avatar:
-      'https://api.dicebear.com/9.x/notionists/png?seed=Isabela%20Rocha&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-    name: 'Isabela Rocha',
-    field: 'Photographer',
-    icon: Camera,
-    summary: 'A gallery, a print for sale, and a tap-to-save contact card.',
-    highlight: 'Save-contact block drops her straight into a client’s phone',
-    blocks: ['Profile', 'Gallery', 'Link', 'Product', 'Save contact', 'Socials'],
-    palette: 'Paper',
-    accent: '#E86A33',
-  },
-  {
-    slug: 'theo',
-    avatar:
-      'https://api.dicebear.com/9.x/notionists/png?seed=Theo%20Aluko&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-    name: 'Theo Aluko',
-    field: 'Podcaster',
-    icon: Mic,
-    summary: 'Every listening app in one row, plus show notes and a newsletter.',
-    highlight: 'One link that satisfies Spotify listeners and Apple listeners both',
-    blocks: ['Profile', 'Banner', 'Links', 'Rich text', 'Email capture', 'Socials'],
-    palette: 'Ocean',
-    accent: '#06B6D4',
-  },
-  {
-    slug: 'priya',
-    avatar:
-      'https://api.dicebear.com/9.x/notionists/png?seed=Priya%20Raman&size=400&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-    name: 'Priya Raman',
-    field: 'Founder',
-    icon: Rocket,
-    summary: 'A product link, proof it works, and a build log to follow.',
-    highlight: 'Reads like a landing page without being one',
-    blocks: ['Profile', 'Link', 'Rich text', 'Testimonial', 'Divider', 'Email capture'],
-    palette: 'Navy',
-    accent: '#3B82F6',
-  },
-]
+type ProfileData = Extract<BlockData, { type: 'profile' }>
 
-/** The example with this slug, or undefined if the slug isn't one of ours. */
-export function getExampleBySlug(slug: string): ExampleProfile | undefined {
-  return EXAMPLE_PROFILES.find((e) => e.slug === slug)
+/** All published examples, oldest first so the gallery order is stable. */
+export async function getExampleProfiles(): Promise<ExampleProfile[]> {
+  const rows = await db
+    .select({
+      id: sites.id,
+      slug: sites.slug,
+      theme: sites.theme,
+      exampleMeta: sites.exampleMeta,
+    })
+    .from(sites)
+    .where(and(eq(sites.isExample, true), eq(sites.isPublished, true)))
+    .orderBy(asc(sites.createdAt))
+
+  if (rows.length === 0) return []
+
+  // Scoped to these sites: without the `inArray` this read every visible block in
+  // the database and threw all but a handful away.
+  const siteIds = rows.map((r) => r.id)
+  const allBlocks = await db
+    .select({ siteId: blocks.siteId, type: blocks.type, data: blocks.data })
+    .from(blocks)
+    .where(and(inArray(blocks.siteId, siteIds), eq(blocks.isVisible, true)))
+    .orderBy(asc(blocks.position))
+
+  return rows.map((row) => {
+    const own = allBlocks.filter((b) => b.siteId === row.id)
+    const profile = own.find((b) => b.type === 'profile')?.data as ProfileData | undefined
+
+    const theme = parseThemeConfig(row.theme)
+    const meta = row.exampleMeta
+
+    return {
+      slug: row.slug,
+      name: profile?.name ?? row.slug,
+      avatarUrl: profile?.avatarUrl ?? '',
+      field: meta?.field ?? '',
+      summary: meta?.summary ?? '',
+      highlight: meta?.highlight ?? '',
+      // Deduped: a page with three link cards should show one "Link card" chip.
+      blocks: [
+        ...new Set(own.map((b) => BLOCK_REGISTRY[b.type as BlockType]?.label ?? b.type)),
+      ],
+      palette: getPalette(theme.preset).name,
+      accent: theme.accentColor,
+    }
+  })
+}
+
+/** True if this slug is one of the showcase pages. One narrow query. */
+export async function isExampleSlug(slug: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: sites.id })
+    .from(sites)
+    .where(and(eq(sites.slug, slug), eq(sites.isExample, true), eq(sites.isPublished, true)))
+    .limit(1)
+
+  return Boolean(row)
 }
 
 /**
- * The example after this one, wrapping around at the end.
+ * The back/next pair for an example page, or null if this slug isn't an example.
  *
- * Wrapping rather than stopping is deliberate: someone paging through the examples
- * should never hit a dead end and have to work out where to go next. Returns
- * undefined only if the slug isn't an example at all.
+ * Next wraps around, so paging through the examples never dead-ends.
+ *
+ * This runs on every public page render — a real customer's page included — so it
+ * deliberately doesn't go through `getExampleProfiles`. That would read every
+ * example's blocks to build data this needs one field of. Instead: one narrow query
+ * for the running order, and a second for the next page's name only, which a
+ * customer's page never reaches because the slug isn't in the first result.
  */
-export function getNextExample(slug: string): ExampleProfile | undefined {
-  const i = EXAMPLE_PROFILES.findIndex((e) => e.slug === slug)
-  if (i === -1) return undefined
-  return EXAMPLE_PROFILES[(i + 1) % EXAMPLE_PROFILES.length]
+export async function getExampleNav(
+  slug: string,
+): Promise<{ currentSlug: string; nextSlug: string; nextName: string } | null> {
+  const rows = await db
+    .select({ id: sites.id, slug: sites.slug })
+    .from(sites)
+    .where(and(eq(sites.isExample, true), eq(sites.isPublished, true)))
+    .orderBy(asc(sites.createdAt))
+
+  const i = rows.findIndex((r) => r.slug === slug)
+  if (i === -1) return null
+
+  const next = rows[(i + 1) % rows.length]
+  const [profileBlock] = await db
+    .select({ data: blocks.data })
+    .from(blocks)
+    .where(and(eq(blocks.siteId, next.id), eq(blocks.type, 'profile')))
+    .limit(1)
+
+  const name = (profileBlock?.data as ProfileData | undefined)?.name ?? next.slug
+  return { currentSlug: slug, nextSlug: next.slug, nextName: name.split(' ')[0] }
 }

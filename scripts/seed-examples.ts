@@ -100,6 +100,8 @@ type Example = {
   field: string
   /** One line for the gallery card. */
   summary: string
+  /** The specific thing worth pointing a visitor at on this page. */
+  highlight: string
   theme: ThemeConfig
   seo: { title: string; description: string }
   /** Roughly how many lifetime views to seed. */
@@ -114,6 +116,7 @@ const EXAMPLES: Example[] = [
     email: 'mara@example.foliopage.site',
     field: 'Musician',
     summary: 'Releases, tour dates and a mailing list, all above the fold.',
+    highlight: 'Counts down to the next show, then flips itself to “we’re live”',
     theme: theme('plum', '#A855F7'),
     seo: {
       title: 'Mara Vance — Indie folk from Lisbon',
@@ -174,6 +177,7 @@ const EXAMPLES: Example[] = [
     email: 'deniz@example.foliopage.site',
     field: 'Coach',
     summary: 'Sells a program, answers objections, and books new clients.',
+    highlight: 'A testimonial and an FAQ doing the work a sales page usually does',
     theme: theme('forest', '#10B981'),
     seo: {
       title: 'Deniz Kaya — Strength coach, Berlin',
@@ -255,6 +259,7 @@ const EXAMPLES: Example[] = [
     email: 'isabela@example.foliopage.site',
     field: 'Photographer',
     summary: 'A gallery, a print for sale, and a tap-to-save contact card.',
+    highlight: 'Save-contact block drops her straight into a client’s phone',
     theme: theme('paper', '#E86A33'),
     seo: {
       title: 'Isabela Rocha — Documentary photographer',
@@ -319,6 +324,7 @@ const EXAMPLES: Example[] = [
     email: 'theo@example.foliopage.site',
     field: 'Podcaster',
     summary: 'Every listening app in one row, plus show notes and a newsletter.',
+    highlight: 'One link that satisfies Spotify listeners and Apple listeners both',
     theme: theme('ocean', '#06B6D4'),
     seo: {
       title: 'Theo Aluko — The Long Game',
@@ -381,6 +387,7 @@ const EXAMPLES: Example[] = [
     email: 'priya@example.foliopage.site',
     field: 'Founder',
     summary: 'A product link, proof it works, and a build log to follow.',
+    highlight: 'Reads like a landing page without being one',
     theme: theme('navy', '#3B82F6'),
     seo: {
       title: 'Priya Raman — Building Ledgerly',
@@ -531,6 +538,14 @@ async function main() {
         isPublished: true,
         theme: example.theme,
         seo: example.seo,
+        // The flag is what puts the page in /examples — the gallery reads it back
+        // rather than keeping its own copy of this list.
+        isExample: true,
+        exampleMeta: {
+          field: example.field,
+          summary: example.summary,
+          highlight: example.highlight,
+        },
       })
       .returning()
     if (!site) throw new Error(`Failed to create site for ${example.slug}`)

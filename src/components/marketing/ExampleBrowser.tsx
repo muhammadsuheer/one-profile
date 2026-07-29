@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowUpRight, Eye, Palette } from 'lucide-react'
-import { EXAMPLE_PROFILES } from '@/lib/examples'
+import type { ExampleProfile } from '@/lib/examples'
 
 /**
  * The examples browser: pick a face, see that page render.
@@ -32,33 +32,55 @@ import { EXAMPLE_PROFILES } from '@/lib/examples'
  * would need three Back presses to leave the page. Remounting replaces the frame
  * and leaves history alone.
  *
- * Which example opens is decided on the server — `/examples/theo` renders with Theo
- * already selected — so the first paint is correct and there's no query parameter
- * on the URL. That's what makes returning from an example page land where the
- * visitor left off.
+ * The selection is kept in the URL fragment — `/examples#theo` — which is how
+ * returning from an example page lands where the visitor left off.
  *
- * From then on switching is local state, and the URL is corrected with
- * `history.replaceState` rather than a router navigation. Two reasons: the swap is
- * instant, with no round trip for a page whose content is already on the client;
- * and `replaceState` doesn't stack history, so clicking through five people leaves
- * nothing to unwind. The URL still ends up right, which is what matters — refresh
- * or Back both resolve to a real route the server can render.
+ * A fragment specifically, not a route or a query parameter. Both of those were
+ * built first and both were worse. A route (`/examples/theo`) meant five URLs
+ * serving the same heading, the same copy and the same sections: near-duplicate
+ * pages that would compete with each other and add nothing, since the unique
+ * content worth ranking is the example pages themselves. A query parameter had the
+ * same duplication problem and made the URL read as a setting. A fragment isn't a
+ * separate address at all, so there's one gallery page and nothing to deduplicate.
+ *
+ * The trade is that a fragment can only be read on the client, so arriving at
+ * `#theo` paints the first example for a moment before settling. That's the cost of
+ * not shipping five copies of one page, and it's the right way round.
+ *
+ * `replaceState` rather than a router navigation: the swap is instant, and clicking
+ * through five people leaves no history to unwind.
+ *
+ * The examples themselves come in as a prop. They're database rows now, read on the
+ * server — which is also why the caller guarantees a non-empty list, so there's no
+ * "no examples" branch to render here.
  */
-export default function ExampleBrowser({ initialSlug }: { initialSlug: string }) {
+export default function ExampleBrowser({
+  profiles,
+  initialSlug,
+}: {
+  profiles: ExampleProfile[]
+  initialSlug: string
+}) {
   const [activeSlug, setActiveSlug] = useState(initialSlug)
-  const active = EXAMPLE_PROFILES.find((e) => e.slug === activeSlug) ?? EXAMPLE_PROFILES[0]
+  const active = profiles.find((e) => e.slug === activeSlug) ?? profiles[0]
   const fullPageHref = `/${active.slug}`
+
+  // Arriving at /examples#theo — the fragment isn't visible to the server.
+  useEffect(() => {
+    const fromHash = window.location.hash.slice(1)
+    if (fromHash && profiles.some((p) => p.slug === fromHash)) setActiveSlug(fromHash)
+  }, [profiles])
 
   const select = (slug: string) => {
     setActiveSlug(slug)
-    window.history.replaceState(null, '', `/examples/${slug}`)
+    window.history.replaceState(null, '', `#${slug}`)
   }
 
   return (
     <div>
       {/* Switcher — names always visible, no hover required */}
       <div className="flex flex-wrap items-start justify-center gap-x-3 gap-y-5 sm:gap-x-6">
-        {EXAMPLE_PROFILES.map((example) => {
+        {profiles.map((example) => {
           const isActive = example.slug === active.slug
 
           return (
@@ -74,7 +96,7 @@ export default function ExampleBrowser({ initialSlug }: { initialSlug: string })
               <span className="relative block">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={example.avatar}
+                  src={example.avatarUrl}
                   alt=""
                   width={56}
                   height={56}

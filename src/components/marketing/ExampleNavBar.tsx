@@ -23,11 +23,12 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
  * profile block at the top of the page — a button over someone's face.  In flow it
  * pushes the page down by its own height and still stays put while scrolling.
  *
- * Props are plain strings rather than the profile objects they come from. An
- * ExampleProfile carries its Lucide `icon`, which is a component, and React can't
- * serialise that across the server/client boundary — passing the objects threw
- * "Only plain objects can be passed to Client Components" and took the whole page
- * down with a 500. Only these three fields are needed here anyway.
+ * Props are plain strings rather than the row objects they come from — only these
+ * three fields are needed, and keeping the boundary to primitives means nothing
+ * unserialisable can cross it.
+ *
+ * The back link carries a fragment, so the gallery reopens on the example just
+ * viewed without that being a separate page.
  */
 export default function ExampleNavBar({
   currentSlug,
@@ -50,7 +51,7 @@ export default function ExampleNavBar({
     <div className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/85 backdrop-blur">
       <div className="mx-auto flex max-w-[440px] items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
         <Link
-          href={`/examples/${currentSlug}`}
+          href={`/examples#${currentSlug}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface-hover)]"
         >
           <ArrowLeft className="h-4 w-4" />

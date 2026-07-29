@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import ExamplesView from '@/components/marketing/ExamplesView'
-import { EXAMPLE_PROFILES } from '@/lib/examples'
+import { getExampleProfiles } from '@/lib/examples'
 
 export const metadata: Metadata = {
   title: 'Examples',
@@ -8,15 +8,18 @@ export const metadata: Metadata = {
     'Real FolioPage pages across five fields — musician, coach, photographer, podcaster, founder. See what yours could look like.',
 }
 
+/** The gallery is database-backed now, so it's revalidated rather than baked in. */
+export const revalidate = 300
+
 /**
- * The gallery index: opens on the first example.
+ * The one gallery page. Which example is open is a URL fragment, so this stays a
+ * single address rather than one page per example.
  *
- * A specific example is a route of its own — `/examples/theo` — rather than a query
- * parameter on this page. Both were built; the segment wins on every count that
- * matters here. The URL reads as a place rather than a setting, the server already
- * knows which example to open so there's no flash of the wrong one and no Suspense
- * boundary needed, and each example gets its own title and description.
+ * An unseeded environment yields an empty list rather than an error; ExamplesView
+ * renders the empty state.
  */
-export default function ExamplesPage() {
-  return <ExamplesView activeSlug={EXAMPLE_PROFILES[0].slug} />
+export default async function ExamplesPage() {
+  const profiles = await getExampleProfiles()
+
+  return <ExamplesView profiles={profiles} activeSlug={profiles[0]?.slug ?? ''} />
 }

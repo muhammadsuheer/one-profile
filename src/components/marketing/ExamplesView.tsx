@@ -3,13 +3,16 @@ import { ArrowUpRight, Blocks, Palette, Eye } from 'lucide-react'
 import Navbar from '@/components/marketing/Navbar'
 import Footer from '@/components/marketing/Footer'
 import ExampleBrowser from '@/components/marketing/ExampleBrowser'
+import type { ExampleProfile } from '@/lib/examples'
 
 /**
- * The examples gallery, shared by `/examples` and `/examples/[slug]`.
+ * The examples gallery.
  *
- * Both routes render exactly this; the only difference is which example opens
- * first, which is why it lives here rather than being duplicated across the two
- * page files.
+ * There's one of these pages, deliberately. An earlier version gave each example
+ * its own route, which meant five URLs serving the same heading and the same
+ * sections — near-duplicates that compete with each other for nothing, since the
+ * content worth ranking is the example pages themselves. Which example opens is a
+ * URL fragment now; see ExampleBrowser.
  */
 const NOTICE = [
   {
@@ -29,7 +32,15 @@ const NOTICE = [
   },
 ]
 
-export default function ExamplesView({ activeSlug }: { activeSlug: string }) {
+export default function ExamplesView({
+  profiles,
+  activeSlug,
+}: {
+  profiles: ExampleProfile[]
+  activeSlug: string
+}) {
+  const fields = [...new Set(profiles.map((p) => p.field).filter(Boolean))]
+
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
       <Navbar />
@@ -43,15 +54,32 @@ export default function ExamplesView({ activeSlug }: { activeSlug: string }) {
             See what yours could look like.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-white/55">
-            Five published pages across five fields. Every one is live — open any of
-            them and you&apos;re looking at the product, rendering real content.
+            {fields.length > 0 ? (
+              <>
+                Published pages across {fields.length} fields — {fields.join(', ').toLowerCase()}.
+                Every one is live: open any of them and you&apos;re looking at the product,
+                rendering real content.
+              </>
+            ) : (
+              <>
+                Live pages built with the product itself — no screenshots, no mockups.
+              </>
+            )}
           </p>
         </div>
       </section>
 
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-5 py-16 lg:py-20">
-          <ExampleBrowser initialSlug={activeSlug} />
+          {profiles.length > 0 ? (
+            <ExampleBrowser profiles={profiles} initialSlug={activeSlug} />
+          ) : (
+            // An environment without the seed. Saying so beats an empty frame that
+            // reads as a broken page.
+            <p className="mx-auto max-w-md text-center text-white/45">
+              The example pages haven&apos;t been published in this environment yet.
+            </p>
+          )}
         </div>
       </section>
 
